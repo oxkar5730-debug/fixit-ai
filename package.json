@@ -1,0 +1,12 @@
+{
+  "name": "fixit-ai",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "@google/genai": "^0.1.1"
+  }
+}
