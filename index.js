@@ -4,7 +4,6 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 const app = express();
 app.use(express.json({ limit: '30mb' }));
 
-// Función de inicialización segura de la IA
 function getGeminiModel() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -14,7 +13,6 @@ function getGeminiModel() {
   return genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 }
 
-// Manifiesto PWA
 app.get('/manifest.json', (req, res) => {
   res.json({
     "name": "FixIt",
@@ -35,7 +33,6 @@ app.get('/manifest.json', (req, res) => {
   });
 });
 
-// ENDPOINT DE DIAGNÓSTICO DE CÁMARA
 app.post('/api/diagnose', async (req, res) => {
   try {
     const { imageBase64, mimeType } = req.body;
@@ -74,7 +71,6 @@ app.post('/api/diagnose', async (req, res) => {
   }
 });
 
-// ENDPOINT CHAT ASISTENTE
 app.post('/api/chat', async (req, res) => {
   try {
     const { message } = req.body;
@@ -91,7 +87,6 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-// INTERFAZ FRONTEND
 const htmlContent = `<!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
@@ -378,4 +373,8 @@ const htmlContent = `<!DOCTYPE html>
         var payload = await res.json();
         if (payload.success) {
           history.innerHTML += '<div class="bg-slate-800 p-3 rounded-xl text-slate-300 max-w-[85%]" style="overflow-wrap: anywhere;">' + payload.reply + '</div>';
-          history.s
+          history.scrollTop = history.scrollHeight;
+        }
+      } catch (e) {
+        history.innerHTML += '<div class="text-rose-400">Error de conexión.</div>';
+ 
