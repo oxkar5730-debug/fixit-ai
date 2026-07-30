@@ -8,7 +8,7 @@ app.use(express.json({ limit: '30mb' }));
 function getGeminiModel() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("Falta la variable GEMINI_API_KEY en Render.");
-  return new GoogleGenerativeAI(apiKey).getGenerativeModel({ model: 'gemini-1.5-flash' });
+  return new GoogleGenerativeAI(apiKey).getGenerativeModel({ model: 'gemini-2.0-flash' });
 }
 
 app.get('/manifest.json', (req, res) => {
