@@ -4,7 +4,15 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const app = express();
 app.use(express.json({ limit: '30mb' }));
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Función segura para obtener la IA solo cuando hace falta
+function getGeminiModel() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Falta la variable de entorno GEMINI_API_KEY en Render.");
+  }
+  const genAI = new GoogleGenerativeAI(apiKey);
+  return genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+}
 
 // Manifiesto PWA
 app.get('/manifest.json', (req, res) => {
@@ -27,7 +35,7 @@ app.get('/manifest.json', (req, res) => {
   });
 });
 
-// ENDPOINT DE DIAGNÓSTICO DE CÁMARA (100% blindado contra errores de JSON)
+// ENDPOINT DE DIAGNÓSTICO DE CÁMARA
 app.post('/api/diagnose', async (req, res) => {
   try {
     const { imageBase64, mimeType } = req.body;
@@ -35,35 +43,9 @@ app.post('/api/diagnose', async (req, res) => {
       return res.status(400).json({ success: false, error: 'No se ha proporcionado ninguna imagen.' });
     }
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = getGeminiModel();
     
-    const prompt = `Actúa como un maestro experto en reparaciones, bricolaje, fontanería, carpintería, electricidad y electrodomésticos. Analiza la imagen aportada y devuelve una respuesta en formato JSON puro (sin bloques de código markdown como \`\`\`json, solo el texto JSON plano).
-
-Estructura obligatoria del JSON:
-{
-  "object_name": "Nombre claro del objeto o avería detectada",
-  "verdict": {
-    "summary": "Resumen directo del problema en una frase",
-    "detailed_analysis": "Explicación detallada de los daños visibles y qué ha provocado la avería."
-  },
-  "solution": {
-    "needs_pro": false,
-    "pro_reason": "",
-    "steps": [
-      "Paso 1 detallado para solucionarlo",
-      "Paso 2 detallado",
-      "Paso 3 detallado"
-    ],
-    "amazon_parts": [
-      {
-        "name": "Nombre de la pieza o herramienta necesaria",
-        "search_query": "Termino de busqueda optimizado para Amazon"
-      }
-    ]
-  }
-}
-
-Nota de seguridad: Si la foto muestra un peligro crítico (fuga grave de gas, riesgo eléctrico mortal o daño estructural severo), pon "needs_pro": true, rellena "pro_reason" explicando el peligro, y deja "steps" y "amazon_parts" como arrays vacíos []. Si se puede reparar de forma manual o casera, pon "needs_pro": false y da los pasos.`;
+    const prompt = 'Actúa como un maestro experto en reparaciones, bricolaje, fontanería, carpintería, electricidad y electrodomésticos. Analiza la imagen aportada y devuelve una respuesta en formato JSON puro (sin bloques de código markdown, solo el texto JSON plano).\n\nEstructura obligatoria del JSON:\n{\n  "object_name": "Nombre claro del objeto o avería detectada",\n  "verdict": {\n    "summary": "Resumen directo del problema en una frase",\n    "detailed_analysis": "Explicación detallada de los daños visibles y qué ha provocado la avería."\n  },\n  "solution": {\n    "needs_pro": false,\n    "pro_reason": "",\n    "steps": [\n      "Paso 1 detallado para solucionarlo",\n      "Paso 2 detallado"\n    ],\n    "amazon_parts": [\n      {\n        "name": "Nombre de la pieza o herramienta necesaria",\n        "search_query": "Termino de busqueda optimizado para Amazon"\n      }\n    ]\n  }\n}\n\nNota de seguridad: Si la foto muestra un peligro crítico, pon "needs_pro": true, rellena "pro_reason", y deja "steps" y "amazon_parts" como arrays vacíos [].';
 
     const result = await model.generateContent([
       prompt,
@@ -71,8 +53,6 @@ Nota de seguridad: Si la foto muestra un peligro crítico (fuga grave de gas, ri
     ]);
 
     const rawText = result.response.text();
-    
-    // Limpieza agresiva para extraer exclusivamente el JSON y evitar fallos de parseo
     const cleanJsonString = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
     
     let parsedData;
@@ -82,15 +62,15 @@ Nota de seguridad: Si la foto muestra un peligro crítico (fuga grave de gas, ri
       console.error("Error al parsear respuesta de Gemini:", rawText);
       return res.status(500).json({ 
         success: false, 
-        error: 'La IA no pudo procesar correctamente la imagen. Por favor, intenta hacer otra foto con mejor iluminación.' 
+        error: 'La IA no pudo procesar correctamente la imagen. Intenta hacer otra foto con mejor luz.' 
       });
     }
 
     return res.json({ success: true, data: parsedData });
 
   } catch (error) {
-    console.error('Error crítico en /api/diagnose:', error);
-    return res.status(500).json({ success: false, error: 'Error interno al analizar la foto. Comprueba tu conexión.' });
+    console.error('Error en /api/diagnose:', error);
+    return res.status(500).json({ success: false, error: error.message || 'Error interno al analizar la foto.' });
   }
 });
 
@@ -100,8 +80,8 @@ app.post('/api/chat', async (req, res) => {
     const { message } = req.body;
     if (!message) return res.status(400).json({ error: 'Mensaje vacío.' });
 
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-    const prompt = `Eres el asistente técnico de FixIt, experto en reparaciones del hogar, bricolaje, fontanería y carpintería. Responde de forma útil, práctica y clara a: "${message}"`;
+    const model = getGeminiModel();
+    const prompt = `Eres el asistente técnico de FixIt, experto en reparaciones. Responde a: "${message}"`;
 
     const result = await model.generateContent(prompt);
     res.json({ success: true, reply: result.response.text() });
@@ -113,8 +93,7 @@ app.post('/api/chat', async (req, res) => {
 
 // INTERFAZ FRONTEND
 app.get('/', (req, res) => {
-  res.send(`
-<!DOCTYPE html>
+  res.send(`<!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
   <meta charset="UTF-8">
@@ -270,36 +249,37 @@ app.get('/', (req, res) => {
   </nav>
 
   <script>
-    let diagnosticResult = null;
+    var diagnosticResult = null;
 
     function switchTab(tab) {
-      ['home', 'chat', 'shop'].forEach(function(t) {
-        document.getElementById('tab-' + t).classList.add('hidden');
-        document.getElementById('nav-' + t).className = "flex flex-col items-center text-slate-500 transition";
-      });
+      var tabs = ['home', 'chat', 'shop'];
+      for (var i = 0; i < tabs.length; i++) {
+        document.getElementById('tab-' + tabs[i]).classList.add('hidden');
+        document.getElementById('nav-' + tabs[i]).className = "flex flex-col items-center text-slate-500 transition";
+      }
       document.getElementById('tab-' + tab).classList.remove('hidden');
       document.getElementById('nav-' + tab).className = "flex flex-col items-center text-blue-500 transition";
     }
 
     async function handleImageUpload(e) {
-      const file = e.target.files[0];
+      var file = e.target.files[0];
       if (!file) return;
 
       document.getElementById('camPrompt').classList.add('hidden');
       document.getElementById('homeLoading').classList.remove('hidden');
       document.getElementById('homeOptions').classList.add('hidden');
 
-      const compressed = await compressImg(file, 900, 0.75);
+      var compressed = await compressImg(file, 900, 0.75);
       document.getElementById('imgPreview').src = compressed;
       document.getElementById('imgPreview').classList.remove('hidden');
 
       try {
-        const res = await fetch('/api/diagnose', {
+        var res = await fetch('/api/diagnose', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ imageBase64: compressed.split(',')[1], mimeType: 'image/jpeg' })
         });
-        const payload = await res.json();
+        var payload = await res.json();
 
         if (payload.success) {
           diagnosticResult = payload.data;
@@ -324,16 +304,16 @@ app.get('/', (req, res) => {
     }
 
     function compressImg(file, maxWidth, quality) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let w = img.width, h = img.height;
+      return new Promise(function(resolve) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+          var img = new Image();
+          img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var w = img.width, h = img.height;
             if (w > maxWidth) { h = Math.round((h * maxWidth) / w); w = maxWidth; }
             canvas.width = w; canvas.height = h;
-            const ctx = canvas.getContext('2d');
+            var ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, w, h);
             resolve(canvas.toDataURL('image/jpeg', quality));
           };
@@ -386,15 +366,16 @@ app.get('/', (req, res) => {
     }
 
     async function sendAppChat() {
-      const input = document.getElementById('chatMsg');
-      const text = input.value.trim();
+      var input = document.getElementById('chatMsg');
+      var text = input.value.trim();
       if (!text) return;
-      const history = document.getElementById('chatHistory');
-      history.innerHTML += '<div class="bg-blue-600 p-3 rounded-xl text-white ml-auto max-w-[85%]">' + text + '</div>';
+      var history = document.getElementById('chatHistory');
+      history.innerHTML += '<div class="bg-blue-600 p-3 rounded-xl text-white ml-auto max-w-[85%]" style="overflow-wrap: anywhere;">' + text + '</div>';
       input.value = '';
       history.scrollTop = history.scrollHeight;
 
       try {
-        const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
-        const payload = await res.json();
-        if (payload.su
+        var res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
+        var payload = await res.json();
+        if (payload.success) {
+          history.innerHTML += '<div class="bg-slate-800 p-3 rounded-xl text-slate-300 max-w-[85%]" style="overflow-wrap: anywhere;">' + payload.reply + '</d
