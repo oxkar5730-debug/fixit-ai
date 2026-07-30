@@ -4,10 +4,29 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const app = express();
 app.use(express.json({ limit: '10mb' }));
 
-// Inicializar el cliente con la librería oficial
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// 1. Endpoint API del Backend
+// Endpoint manifiesto PWA para PWABuilder
+app.get('/manifest.json', (req, res) => {
+  res.json({
+    "name": "FixIt AI",
+    "short_name": "FixIt",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#2563eb",
+    "description": "Diagnóstico inteligente de averías de electrodomésticos.",
+    "icons": [
+      {
+        "src": "https://cdn-icons-png.flaticon.com/512/1041/1041886.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "any maskable"
+      }
+    ]
+  });
+});
+
 app.post('/api/diagnose', async (req, res) => {
   try {
     const { imageBase64, mimeType } = req.body;
@@ -43,11 +62,9 @@ app.post('/api/diagnose', async (req, res) => {
     const result = await model.generateContent([prompt, imagePart]);
     const responseText = result.response.text();
     
-    // Limpieza de formato JSON por si el modelo incluye markdown
     const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
     const diagnosticResult = JSON.parse(cleanJson);
     
-    // Enlace de búsqueda de la pieza en Amazon
     const partSearchQuery = encodeURIComponent(`${diagnosticResult.appliance_type} ${diagnosticResult.part_info.part_name} ${diagnosticResult.part_info.part_number}`);
     diagnosticResult.part_info.buy_url = `https://www.amazon.es/s?k=${partSearchQuery}`;
 
@@ -59,7 +76,6 @@ app.post('/api/diagnose', async (req, res) => {
   }
 });
 
-// 2. Interfaz web integrada
 app.get('/', (req, res) => {
   res.send(`
 <!DOCTYPE html>
@@ -67,6 +83,8 @@ app.get('/', (req, res) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#2563eb">
   <title>FixIt AI – Diagnóstico de Electrodomésticos</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
