@@ -4,7 +4,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 const app = express();
 app.use(express.json({ limit: '30mb' }));
 
-// Función segura para obtener la IA solo cuando hace falta
+// Función de inicialización segura de la IA
 function getGeminiModel() {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -378,4 +378,5 @@ app.get('/', (req, res) => {
         var res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
         var payload = await res.json();
         if (payload.success) {
-          history.innerHTML += '<div class="bg-slate-800 p-3 rounded-xl text-slate-300 max-w-[85%]" style="overflow-wrap: anywhere;">' + payload.reply + '</d
+          history.innerHTML += '<div class="bg-slate-800 p-3 rounded-xl text-slate-300 max-w-[85%]" style="overflow-wrap: anywhere;">' + payload.reply + '</div>';
+         
