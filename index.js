@@ -1,44 +1,11 @@
 import express from 'express';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
 
-// Inicializar el cliente de Google Gen AI usando variables de entorno
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-// Esquema de diagnóstico estructurado
-const diagnosticSchema = {
-  type: Type.OBJECT,
-  properties: {
-    appliance_type: { type: Type.STRING, description: 'Tipo de electrodoméstico (ej: Lavadora, Lavavajillas)' },
-    detected_issue: { type: Type.STRING, description: 'Descripción breve del código de error o problema visible' },
-    severity: { 
-      type: Type.STRING, 
-      enum: ['SAFE_DIY', 'ADVANCED_DIY', 'HAZARDOUS_PRO_REQUIRED'],
-      description: 'Nivel de seguridad y dificultad de reparación' 
-    },
-    safety_warnings: { 
-      type: Type.ARRAY, 
-      items: { type: Type.STRING },
-      description: 'Advertencias de seguridad importantes (ej: desenchufar primero)'
-    },
-    part_info: {
-      type: Type.OBJECT,
-      properties: {
-        part_name: { type: Type.STRING },
-        part_number: { type: Type.STRING, description: 'Número de pieza del fabricante o término de búsqueda' }
-      },
-      required: ['part_name', 'part_number']
-    },
-    repair_steps: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
-      description: 'Pasos claros (3-5) para solucionar el problema'
-    }
-  },
-  required: ['appliance_type', 'detected_issue', 'severity', 'safety_warnings', 'part_info', 'repair_steps']
-};
+// Inicializar el cliente con la librería oficial
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // 1. Endpoint API del Backend
 app.post('/api/diagnose', async (req, res) => {
@@ -49,29 +16,38 @@ app.post('/api/diagnose', async (req, res) => {
       return res.status(400).json({ error: 'Se requiere una imagen' });
     }
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: [
-        {
-          inlineData: {
-            mimeType: mimeType || 'image/jpeg',
-            data: imageBase64
-          }
-        },
-        `Eres FixIt AI, una herramienta experta en diagnóstico de electrodomésticos. 
-         Analiza esta foto (código de error, etiqueta de serie o componente dañado). 
-         Extrae el código de error o defecto visual, diagnostica el fallo exacto, 
-         evalúa riesgos de seguridad y proporciona instrucciones de reparación paso a paso en español.`
-      ],
-      config: {
-        responseMimeType: 'application/json',
-        responseSchema: diagnosticSchema
-      }
-    });
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const diagnosticResult = JSON.parse(response.text);
+    const prompt = `Eres FixIt AI, una herramienta experta en diagnóstico de electrodomésticos. 
+    Analiza esta foto (código de error, etiqueta de serie o componente dañado). 
+    Responde ÚNICAMENTE con un objeto JSON válido con este formato exacto:
+    {
+      "appliance_type": "Tipo de electrodoméstico (ej: Lavadora)",
+      "detected_issue": "Descripción del fallo o código de error",
+      "severity": "SAFE_DIY, ADVANCED_DIY o HAZARDOUS_PRO_REQUIRED",
+      "safety_warnings": ["Lista de advertencias de seguridad"],
+      "part_info": {
+        "part_name": "Nombre de la pieza",
+        "part_number": "Número de pieza o referencia"
+      },
+      "repair_steps": ["Paso 1", "Paso 2", "Paso 3"]
+    }`;
+
+    const imagePart = {
+      inlineData: {
+        data: imageBase64,
+        mimeType: mimeType || 'image/jpeg'
+      }
+    };
+
+    const result = await model.generateContent([prompt, imagePart]);
+    const responseText = result.response.text();
     
-    // Enlace de búsqueda de la pieza
+    // Limpieza de formato JSON por si el modelo incluye markdown
+    const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
+    const diagnosticResult = JSON.parse(cleanJson);
+    
+    // Enlace de búsqueda de la pieza en Amazon
     const partSearchQuery = encodeURIComponent(`${diagnosticResult.appliance_type} ${diagnosticResult.part_info.part_name} ${diagnosticResult.part_info.part_number}`);
     diagnosticResult.part_info.buy_url = `https://www.amazon.es/s?k=${partSearchQuery}`;
 
@@ -102,23 +78,20 @@ app.get('/', (req, res) => {
   </header>
 
   <main class="w-full max-w-md bg-white rounded-xl shadow-md p-5 space-y-4">
-    <!-- Área de cámara/subida -->
     <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-500 transition cursor-pointer" onclick="document.getElementById('fileInput').click()">
       <input type="file" id="fileInput" accept="image/*" capture="environment" class="hidden" onchange="previewAndDiagnose(event)">
       <div id="uploadPrompt" class="space-y-2">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
         <p class="text-sm font-medium text-gray-700">Toca para hacer foto o subir imagen</p>
       </div>
       <img id="preview" class="hidden w-full h-48 object-cover rounded-md">
     </div>
 
-    <!-- Estado de carga -->
     <div id="loading" class="hidden text-center py-6">
       <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-600 border-t-transparent"></div>
       <p class="text-sm text-gray-500 mt-2">Analizando imagen y detectando piezas...</p>
     </div>
 
-    <!-- Resultado del diagnóstico -->
     <div id="results" class="hidden space-y-4">
       <div class="flex justify-between items-start border-b pb-3">
         <div>
@@ -128,13 +101,11 @@ app.get('/', (req, res) => {
         <span id="severityBadge" class="px-2 py-1 text-xs font-bold rounded"></span>
       </div>
 
-      <!-- Advertencias -->
       <div id="warningContainer" class="bg-red-50 border-l-4 border-red-500 p-3 rounded text-sm text-red-700 hidden">
         <strong>⚠️ Advertencia de seguridad:</strong>
         <ul id="warningList" class="list-disc ml-5 mt-1"></ul>
       </div>
 
-      <!-- Ficha de repuesto -->
       <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
         <h3 class="text-xs uppercase font-bold text-blue-800 tracking-wider">Pieza de repuesto necesaria</h3>
         <p id="partName" class="font-bold text-gray-900 mt-1"></p>
@@ -144,7 +115,6 @@ app.get('/', (req, res) => {
         </a>
       </div>
 
-      <!-- Pasos de reparación -->
       <div>
         <h3 class="font-bold text-sm mb-2">Pasos para la reparación:</h3>
         <ol id="stepsList" class="list-decimal ml-5 space-y-1 text-sm text-gray-700"></ol>
@@ -200,7 +170,7 @@ app.get('/', (req, res) => {
       else if (data.severity === 'ADVANCED_DIY') badge.className = 'px-2 py-1 text-xs font-bold rounded bg-yellow-100 text-yellow-800';
       else badge.className = 'px-2 py-1 text-xs font-bold rounded bg-red-100 text-red-800';
 
-      if (data.safety_warnings.length > 0) {
+      if (data.safety_warnings && data.safety_warnings.length > 0) {
         document.getElementById('warningContainer').classList.remove('hidden');
         document.getElementById('warningList').innerHTML = data.safety_warnings.map(w => \`<li>\${w}</li>\`).join('');
       }
