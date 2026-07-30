@@ -138,7 +138,6 @@ app.get('/', (req, res) => {
     <!-- INICIO / CÁMARA -->
     <section id="tab-home" class="space-y-5">
       <div class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-3xl p-6 text-center bg-slate-900/60 transition cursor-pointer flex flex-col items-center justify-center min-h-[260px] relative overflow-hidden" onclick="document.getElementById('fileInput').click()">
-        <!-- Importante: capture="environment" abre la cámara trasera directamente en móviles -->
         <input type="file" id="fileInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event)">
         
         <div id="camPrompt" class="space-y-3">
@@ -274,7 +273,7 @@ app.get('/', (req, res) => {
     let diagnosticResult = null;
 
     function switchTab(tab) {
-      ['home', 'chat', 'shop'].forEach(t => {
+      ['home', 'chat', 'shop'].forEach(function(t) {
         document.getElementById('tab-' + t).classList.add('hidden');
         document.getElementById('nav-' + t).className = "flex flex-col items-center text-slate-500 transition";
       });
@@ -363,13 +362,21 @@ app.get('/', (req, res) => {
         } else {
           document.getElementById('proAlert').classList.add('hidden');
           document.getElementById('diyContent').classList.remove('hidden');
-          document.getElementById('solutionSteps').innerHTML = (diagnosticResult.solution.steps || []).map(s => \`<li class="bg-slate-800 p-2 rounded-xl border border-slate-700">\${s}</li>\`).join('');
-          document.getElementById('amazonLinksList').innerHTML = (diagnosticResult.solution.amazon_parts || []).map(p => \`
-            <a href="https://www.amazon.es/s?k=\${encodeURIComponent(p.search_query)}" target="_blank" class="block bg-blue-600/20 border border-blue-500/40 p-3 rounded-xl text-blue-300 font-semibold text-xs hover:bg-blue-600/30 transition flex items-center justify-between">
-              <span>🛒 \${p.name}</span>
-              <span class="text-[10px] text-blue-400">Ver →</span>
-            </a>
-          \`).join('');
+          
+          var stepsHtml = '';
+          var stepsArr = diagnosticResult.solution.steps || [];
+          for (var i = 0; i < stepsArr.length; i++) {
+            stepsHtml += '<li class="bg-slate-800 p-2 rounded-xl border border-slate-700">' + stepsArr[i] + '</li>';
+          }
+          document.getElementById('solutionSteps').innerHTML = stepsHtml;
+
+          var partsHtml = '';
+          var partsArr = diagnosticResult.solution.amazon_parts || [];
+          for (var j = 0; j < partsArr.length; j++) {
+            var item = partsArr[j];
+            partsHtml += '<a href="https://www.amazon.es/s?k=' + encodeURIComponent(item.search_query) + '" target="_blank" class="block bg-blue-600/20 border border-blue-500/40 p-3 rounded-xl text-blue-300 font-semibold text-xs hover:bg-blue-600/30 transition flex items-center justify-between"><span>🛒 ' + item.name + '</span><span class="text-[10px] text-blue-400">Ver →</span></a>';
+          }
+          document.getElementById('amazonLinksList').innerHTML = partsHtml;
         }
       }
     }
@@ -383,14 +390,11 @@ app.get('/', (req, res) => {
       const text = input.value.trim();
       if (!text) return;
       const history = document.getElementById('chatHistory');
-      history.innerHTML += \`<div class="bg-blue-600 p-3 rounded-xl text-white ml-auto max-w-[85%]">\${text}</div>\`;
+      history.innerHTML += '<div class="bg-blue-600 p-3 rounded-xl text-white ml-auto max-w-[85%]">' + text + '</div>';
       input.value = '';
       history.scrollTop = history.scrollHeight;
 
       try {
         const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
         const payload = await res.json();
-        if (payload.success) {
-          history.innerHTML += \`<div class="bg-slate-800 p-3 rounded-xl text-slate-300 max-w-[85%]">\${payload.reply}</div>\`;
-          history.scrollTop = history.scrollHeight;
- 
+        if (payload.su
