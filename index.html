@@ -4,129 +4,171 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#0f172a">
-  <title>FixIt</title>
+  <meta name="theme-color" content="#09090b">
+  <title>Fixia</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col justify-between select-none">
+<body class="bg-zinc-950 text-zinc-100 font-sans min-h-screen flex flex-col justify-between select-none">
 
-  <header class="w-full p-4 flex justify-between items-center border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-40">
-    <h1 class="text-3xl font-black tracking-tight text-blue-500">FixIt</h1>
-    <span class="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-1 rounded">v1.3.0</span>
+  <header class="w-full p-4 flex justify-between items-center border-b border-zinc-800 bg-zinc-900/90 backdrop-blur sticky top-0 z-40 shadow-md">
+    <h1 class="text-3xl font-black tracking-tight text-amber-500">Fixia</h1>
+    <span class="text-xs font-mono text-amber-400/80 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full">v1.4.0</span>
   </header>
 
   <main class="flex-1 p-4 max-w-md mx-auto w-full overflow-y-auto mb-16">
     <section id="tab-home" class="space-y-5">
-      <div class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-3xl p-6 text-center bg-slate-900/60 transition cursor-pointer flex flex-col items-center justify-center min-h-[260px] relative overflow-hidden" onclick="document.getElementById('fileInput').click()">
-        <input type="file" id="fileInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event)">
+      <div class="border-2 border-dashed border-zinc-700 hover:border-amber-500 rounded-3xl p-6 text-center bg-zinc-900/60 transition cursor-pointer flex flex-col items-center justify-center min-h-[220px] relative overflow-hidden shadow-inner" onclick="document.getElementById('fileInput').click()">
+        <input type="file" id="fileInput" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelected(event)">
         <div id="camPrompt" class="space-y-3">
-          <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mx-auto border border-slate-700 shadow-inner">
-            <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <div class="w-20 h-20 bg-zinc-800 rounded-full flex items-center justify-center mx-auto border border-zinc-700 shadow-md">
+            <svg class="w-10 h-10 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 011.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           </div>
-          <p class="text-sm font-medium text-slate-300">Toca para hacer una foto a la avería</p>
+          <p class="text-sm font-medium text-zinc-300">Toca para hacer una foto a la avería</p>
         </div>
         <img id="imgPreview" class="hidden absolute inset-0 w-full h-full object-cover">
       </div>
 
+      <div id="photoActionContainer" class="hidden space-y-3 bg-zinc-900/80 border border-zinc-800 p-4 rounded-2xl shadow-lg">
+        <div>
+          <label class="block text-xs text-amber-400 font-bold mb-1">¿Qué le pasa exactamente? (Opcional)</label>
+          <textarea id="userNoteInput" placeholder="Ej: Gotea por la rosca inferior al abrir el grifo..." class="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-xs text-zinc-100 focus:outline-none focus:border-amber-500 h-24 resize-none"></textarea>
+        </div>
+        <button onclick="uploadAndDiagnose()" class="w-full bg-amber-500 hover:bg-amber-400 text-zinc-950 font-extrabold py-3 rounded-xl text-xs transition shadow-md">🔍 Analizar con IA</button>
+        <button onclick="resetCam()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2 rounded-xl text-xs transition">Cambiar foto</button>
+      </div>
+
       <div id="homeLoading" class="hidden text-center py-6">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-blue-500 border-t-transparent"></div>
-        <p class="text-xs text-slate-400 mt-2">Analizando imagen con IA...</p>
+        <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-amber-500 border-t-transparent"></div>
+        <p class="text-xs text-amber-400 mt-2 font-medium">Analizando imagen y descripción...</p>
       </div>
 
       <div id="homeOptions" class="hidden space-y-3 pt-2">
-        <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl text-center mb-2">
-          <p class="text-[10px] uppercase font-bold text-slate-500">Objeto analizado</p>
-          <p id="detectedObject" class="text-base font-bold text-blue-400"></p>
+        <div class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-center mb-2 shadow">
+          <p class="text-[10px] uppercase font-bold text-zinc-500">Objeto analizado</p>
+          <p id="detectedObject" class="text-base font-bold text-amber-400"></p>
         </div>
-        <button onclick="openModal('verdict')" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 p-4 rounded-2xl flex items-center justify-between text-left transition shadow-md">
-          <div class="flex items-center gap-3"><span class="text-xl text-blue-400">➔</span><div><h3 class="font-bold text-slate-100">Veredicto</h3><p class="text-xs text-slate-400">¿Qué le pasa y cuál es el origen?</p></div></div>
+        <button onclick="openModal('verdict')" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 p-4 rounded-2xl flex items-center justify-between text-left transition shadow">
+          <div class="flex items-center gap-3"><span class="text-xl text-amber-500">➔</span><div><h3 class="font-bold text-zinc-100">Veredicto</h3><p class="text-xs text-zinc-400">¿Qué le pasa y cuál es el origen?</p></div></div>
         </button>
-        <button onclick="openModal('solution')" class="w-full bg-slate-900 hover:bg-slate-800 border border-slate-700 p-4 rounded-2xl flex items-center justify-between text-left transition shadow-md">
-          <div class="flex items-center gap-3"><span class="text-xl text-emerald-400">➔</span><div><h3 class="font-bold text-slate-100">Solución</h3><p class="text-xs text-slate-400">Pasos y repuestos de Amazon</p></div></div>
+        <button onclick="openModal('solution')" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 p-4 rounded-2xl flex items-center justify-between text-left transition shadow">
+          <div class="flex items-center gap-3"><span class="text-xl text-emerald-400">➔</span><div><h3 class="font-bold text-zinc-100">Solución</h3><p class="text-xs text-zinc-400">Pasos y repuestos de Amazon</p></div></div>
         </button>
+        <button onclick="resetCam()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium py-2.5 rounded-xl text-xs transition mt-2">Hacer otra consulta</button>
       </div>
     </section>
 
     <section id="tab-chat" class="hidden flex flex-col h-[75vh] space-y-3">
-      <div class="border-b border-slate-800 pb-2"><h2 class="text-lg font-bold text-slate-100">Asistente FixIt</h2></div>
-      <div id="chatHistory" class="flex-1 overflow-y-auto space-y-3 p-3 bg-slate-900/50 rounded-2xl border border-slate-800 text-xs">
-        <div class="bg-slate-800 p-3 rounded-xl text-slate-300 max-w-[85%]">¡Hola! Pregúntame sobre reparaciones.</div>
+      <div class="border-b border-zinc-800 pb-2"><h2 class="text-lg font-bold text-zinc-100">Asistente Fixia</h2></div>
+      <div id="chatHistory" class="flex-1 overflow-y-auto space-y-3 p-3 bg-zinc-900/50 rounded-2xl border border-zinc-800 text-xs">
+        <div class="bg-zinc-800 p-3 rounded-xl text-zinc-300 max-w-[85%] border border-zinc-700/50">¡Hola! Pregúntame lo que necesites sobre reparaciones o bricolaje.</div>
       </div>
       <div class="flex gap-2">
-        <input type="text" id="chatMsg" placeholder="Escribe tu consulta..." class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-3 py-3 text-xs focus:outline-none focus:border-blue-500">
-        <button onclick="sendAppChat()" class="bg-blue-600 hover:bg-blue-500 text-white px-4 rounded-xl text-xs font-bold transition">Enviar</button>
+        <input type="text" id="chatMsg" placeholder="Escribe tu consulta..." class="flex-1 bg-zinc-900 border border-zinc-700 rounded-xl px-3 py-3 text-xs text-zinc-100 focus:outline-none focus:border-amber-500">
+        <button onclick="sendAppChat()" class="bg-amber-500 hover:bg-amber-400 text-zinc-950 px-4 rounded-xl text-xs font-extrabold transition shadow">Enviar</button>
       </div>
     </section>
 
     <section id="tab-shop" class="hidden space-y-4">
-      <div class="border-b border-slate-800 pb-2"><h2 class="text-lg font-bold text-slate-100">Buscador</h2></div>
-      <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl space-y-3">
-        <input type="text" id="shopQuery" placeholder="Ej: Silicona antimoho..." class="w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 text-xs text-white">
-        <button onclick="executeAmazonSearch()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-xl text-xs transition">🛒 Buscar en Amazon</button>
+      <div class="border-b border-zinc-800 pb-2"><h2 class="text-lg font-bold text-zinc-100">Buscador</h2></div>
+      <div class="bg-zinc-900 border border-zinc-800 p-4 rounded-2xl space-y-3 shadow">
+        <input type="text" id="shopQuery" placeholder="Ej: Silicona antimoho..." class="w-full bg-zinc-950 border border-zinc-700 rounded-xl p-3 text-xs text-zinc-100 focus:outline-none focus:border-amber-500">
+        <button onclick="executeAmazonSearch()" class="w-full bg-amber-500 hover:bg-amber-400 text-zinc-950 font-extrabold py-3 rounded-xl text-xs transition shadow">🛒 Buscar en Amazon</button>
       </div>
     </section>
   </main>
 
   <div id="modalOverlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto relative">
-      <button onclick="closeModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-lg">✕</button>
+    <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-2xl p-5 space-y-4 max-h-[80vh] overflow-y-auto relative shadow-2xl">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-zinc-400 hover:text-white font-bold text-lg">✕</button>
       <div id="modalVerdictContent" class="hidden space-y-3">
-        <h3 class="text-lg font-bold text-blue-400">📋 Veredicto</h3>
-        <p id="verdictSummary" class="text-xs font-semibold text-white bg-slate-800 p-3 rounded-xl border border-slate-700"></p>
-        <p id="verdictDetails" class="text-xs text-slate-300 leading-relaxed"></p>
+        <h3 class="text-lg font-bold text-amber-400">📋 Veredicto</h3>
+        <p id="verdictSummary" class="text-xs font-semibold text-zinc-100 bg-zinc-950 p-3 rounded-xl border border-zinc-800"></p>
+        <p id="verdictDetails" class="text-xs text-zinc-300 leading-relaxed"></p>
       </div>
       <div id="modalSolutionContent" class="hidden space-y-3">
         <h3 class="text-lg font-bold text-emerald-400">🛠️ Solución</h3>
         <div id="proAlert" class="hidden bg-rose-950/60 border border-rose-800 p-4 rounded-xl text-xs text-rose-200">⚠️ Requiere Profesional</div>
         <div id="diyContent" class="hidden space-y-4">
-          <ol id="solutionSteps" class="space-y-2 text-xs text-slate-300 list-decimal ml-4"></ol>
+          <ol id="solutionSteps" class="space-y-2 text-xs text-zinc-300 list-decimal ml-4"></ol>
           <div id="amazonLinksList" class="space-y-2"></div>
         </div>
       </div>
     </div>
   </div>
 
-  <nav class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-800 py-2 px-6 flex justify-around items-center z-40">
-    <button onclick="switchTab('chat')" id="nav-chat" class="text-slate-500"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></button>
-    <button onclick="switchTab('home')" id="nav-home" class="text-blue-500"><div class="bg-slate-800 p-2 rounded-xl"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div></button>
-    <button onclick="switchTab('shop')" id="nav-shop" class="text-slate-500"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></button>
+  <nav class="fixed bottom-0 left-0 right-0 bg-zinc-900 border-t border-zinc-800 py-2 px-6 flex justify-around items-center z-40 shadow-lg">
+    <button onclick="switchTab('chat')" id="nav-chat" class="text-zinc-500 transition"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></button>
+    <button onclick="switchTab('home')" id="nav-home" class="text-amber-500 transition"><div class="bg-zinc-800 p-2 rounded-xl border border-zinc-700 shadow"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg></div></button>
+    <button onclick="switchTab('shop')" id="nav-shop" class="text-zinc-500 transition"><svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg></button>
   </nav>
 
   <script>
     var diagnosticResult = null;
+    var currentBase64 = null;
+
     function switchTab(tab) {
       ['home', 'chat', 'shop'].forEach(t => {
         document.getElementById('tab-' + t).classList.add('hidden');
-        document.getElementById('nav-' + t).className = "text-slate-500";
+        document.getElementById('nav-' + t).className = "text-zinc-500 transition";
       });
       document.getElementById('tab-' + tab).classList.remove('hidden');
-      document.getElementById('nav-' + tab).className = "text-blue-500";
+      document.getElementById('nav-' + tab).className = "text-amber-500 transition";
     }
 
-    async function handleImageUpload(e) {
+    function handleImageSelected(e) {
       var file = e.target.files[0];
       if (!file) return;
-      document.getElementById('camPrompt').classList.add('hidden');
-      document.getElementById('homeLoading').classList.remove('hidden');
-      document.getElementById('homeOptions').classList.add('hidden');
-
       var reader = new FileReader();
-      reader.onload = async function(event) {
-        var base64 = event.target.result.split(',')[1];
+      reader.onload = function(event) {
+        currentBase64 = event.target.result.split(',')[1];
         document.getElementById('imgPreview').src = event.target.result;
         document.getElementById('imgPreview').classList.remove('hidden');
-        try {
-          var res = await fetch('/api/diagnose', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ imageBase64: base64 }) });
-          var payload = await res.json();
-          if (payload.success) {
-            diagnosticResult = payload.data;
-            document.getElementById('detectedObject').innerText = diagnosticResult.object_name;
-            document.getElementById('homeOptions').classList.remove('hidden');
-          } else { alert('Error: ' + payload.error); }
-        } catch (err) { alert('Error de red'); }
-        document.getElementById('homeLoading').classList.add('hidden');
+        document.getElementById('camPrompt').classList.add('hidden');
+        document.getElementById('photoActionContainer').classList.remove('hidden');
       };
       reader.readAsDataURL(file);
+    }
+
+    async function uploadAndDiagnose() {
+      if (!currentBase64) return;
+      var userNote = document.getElementById('userNoteInput').value;
+      
+      document.getElementById('photoActionContainer').classList.add('hidden');
+      document.getElementById('homeLoading').classList.remove('hidden');
+
+      try {
+        var res = await fetch('/api/diagnose', { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json'}, 
+          body: JSON.stringify({ imageBase64: currentBase64, userNote: userNote }) 
+        });
+        var payload = await res.json();
+        if (payload.success) {
+          diagnosticResult = payload.data;
+          document.getElementById('detectedObject').innerText = diagnosticResult.object_name;
+          document.getElementById('homeOptions').classList.remove('hidden');
+        } else { 
+          alert('Error: ' + payload.error); 
+          document.getElementById('photoActionContainer').classList.remove('hidden');
+        }
+      } catch (err) { 
+        alert('Error de red al conectar con el servidor.'); 
+        document.getElementById('photoActionContainer').classList.remove('hidden');
+      } finally {
+        document.getElementById('homeLoading').classList.add('hidden');
+      }
+    }
+
+    function resetCam() {
+      currentBase64 = null;
+      diagnosticResult = null;
+      document.getElementById('fileInput').value = '';
+      document.getElementById('imgPreview').src = '';
+      document.getElementById('imgPreview').classList.add('hidden');
+      document.getElementById('camPrompt').classList.remove('hidden');
+      document.getElementById('photoActionContainer').classList.add('hidden');
+      document.getElementById('homeOptions').classList.add('hidden');
+      document.getElementById('userNoteInput').value = '';
     }
 
     function openModal(type) {
@@ -141,10 +183,10 @@
       } else {
         document.getElementById('modalSolutionContent').classList.remove('hidden');
         var stepsHtml = '';
-        (diagnosticResult.solution.steps || []).forEach(s => stepsHtml += '<li class="bg-slate-800 p-2 rounded-xl">' + s + '</li>');
+        (diagnosticResult.solution.steps || []).forEach(s => stepsHtml += '<li class="bg-zinc-950 p-2.5 rounded-xl border border-zinc-800">' + s + '</li>');
         document.getElementById('solutionSteps').innerHTML = stepsHtml;
         var partsHtml = '';
-        (diagnosticResult.solution.amazon_parts || []).forEach(p => partsHtml += '<a href="https://www.amazon.es/s?k=' + encodeURIComponent(p.search_query) + '" target="_blank" class="block bg-blue-600/20 border border-blue-500/40 p-3 rounded-xl text-blue-300 font-semibold">🛒 ' + p.name + '</a>');
+        (diagnosticResult.solution.amazon_parts || []).forEach(p => partsHtml += '<a href="https://www.amazon.es/s?k=' + encodeURIComponent(p.search_query) + '" target="_blank" class="block bg-amber-500/10 border border-amber-500/30 p-3 rounded-xl text-amber-300 font-semibold hover:bg-amber-500/20 transition">🛒 ' + p.name + '</a>');
         document.getElementById('amazonLinksList').innerHTML = partsHtml;
       }
     }
@@ -152,16 +194,31 @@
     function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
 
     async function sendAppChat() {
-      var input = document.getElementById('chatMsg'), text = input.value.trim();
+      var input = document.getElementById('chatMsg');
+      var text = input.value.trim();
       if (!text) return;
+      
       var history = document.getElementById('chatHistory');
-      history.innerHTML += '<div class="bg-blue-600 p-3 rounded-xl text-white ml-auto max-w-[85%]">' + text + '</div>';
+      history.innerHTML += '<div class="bg-amber-500 text-zinc-950 font-medium p-3 rounded-xl ml-auto max-w-[85%] shadow" style="overflow-wrap: anywhere;">' + text + '</div>';
       input.value = '';
+      history.scrollTop = history.scrollHeight;
+
       try {
-        var res = await fetch('/api/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ message: text }) });
+        var res = await fetch('/api/chat', { 
+          method: 'POST', 
+          headers: {'Content-Type': 'application/json'}, 
+          body: JSON.stringify({ message: text }) 
+        });
         var payload = await res.json();
-        if (payload.success) history.innerHTML += '<div class="bg-slate-800 p-3 rounded-xl text-slate-300 max-w-[85%]">' + payload.reply + '</div>';
-      } catch (e) { history.innerHTML += '<div class="text-rose-400">Error</div>'; }
+        if (payload.success) {
+          history.innerHTML += '<div class="bg-zinc-900 border border-zinc-800 p-3 rounded-xl text-zinc-200 max-w-[85%] shadow" style="overflow-wrap: anywhere;">' + payload.reply + '</div>';
+        } else {
+          history.innerHTML += '<div class="text-rose-400 p-2">Error del servidor: ' + (payload.error || 'Desconocido') + '</div>';
+        }
+      } catch (e) { 
+        history.innerHTML += '<div class="text-rose-400 p-2">Error de conexión con el chat.</div>'; 
+      }
+      history.scrollTop = history.scrollHeight;
     }
 
     function executeAmazonSearch() {
