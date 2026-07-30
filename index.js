@@ -1,5 +1,5 @@
-import express from 'express';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+const express = require('express');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(express.json({ limit: '30mb' }));
@@ -92,8 +92,7 @@ app.post('/api/chat', async (req, res) => {
 });
 
 // INTERFAZ FRONTEND
-app.get('/', (req, res) => {
-  res.send(`<!DOCTYPE html>
+const htmlContent = `<!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
   <meta charset="UTF-8">
@@ -379,4 +378,4 @@ app.get('/', (req, res) => {
         var payload = await res.json();
         if (payload.success) {
           history.innerHTML += '<div class="bg-slate-800 p-3 rounded-xl text-slate-300 max-w-[85%]" style="overflow-wrap: anywhere;">' + payload.reply + '</div>';
-         
+          history.s
