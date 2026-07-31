@@ -1,7 +1,7 @@
 {
   "name": "fixia-backend",
   "version": "1.4.0",
-  "description": "Backend para Fixia",
+  "description": "Backend de Fixia",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
