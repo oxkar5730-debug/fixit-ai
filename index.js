@@ -11,8 +11,36 @@ app.use(express.static(__dirname));
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-// Probamos directamente con el modelo que me has indicado en la captura
-const model = genAI.getGenerativeModel({ model: "gemini-3.5-flash" });
+// Modelos ordenados dando prioridad a la variante lite y alternativas modernas
+const modelosRespaldo = [
+    "gemini-3.5-flash-lite",
+    "gemini-3.5-flash",
+    "gemini-3.6-flash"
+];
+
+async function generarConRespaldoLite(contenido) {
+    let ultimoError = null;
+
+    for (const nombreModelo of modelosRespaldo) {
+        try {
+            console.log(`[Fixia] Intentando conectar con: ${nombreModelo}`);
+            const model = genAI.getGenerativeModel({ model: nombreModelo });
+            const resultado = await model.generateContent(contenido);
+            const respuesta = await resultado.response;
+            console.log(`[Fixia] ¡Éxito usando ${nombreModelo}!`);
+            return respuesta;
+        } catch (error) {
+            console.log(`[Fixia] El modelo ${nombreModelo} falló:`, error.message);
+            ultimoError = error;
+            
+            if (error.status === 503 || (error.message && error.message.includes('503'))) {
+                await new Promise(resolve => setTimeout(resolve, 1500));
+            }
+        }
+    }
+
+    throw ultimoError;
+}
 
 app.post('/api/analizar', async (req, res) => {
     try {
@@ -28,13 +56,11 @@ app.post('/api/analizar', async (req, res) => {
             });
         }
 
-        const resultado = await model.generateContent(contenido);
-        const respuesta = await resultado.response;
-        
-        res.json({ respuesta: respuesta.text() });
+        const respuestaObj = await generarConRespaldoLite(contenido);
+        res.json({ respuesta: respuestaObj.text() });
     } catch (error) {
-        console.error("Error en Fixia:", error);
-        res.status(500).json({ error: error.message });
+        console.error("Error crítico:", error);
+        res.status(500).json({ error: "Los servidores están experimentando alta demanda. Por favor, prueba de nuevo en unos segundos." });
     }
 });
 
