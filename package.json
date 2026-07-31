@@ -1,7 +1,7 @@
 {
   "name": "fixia",
-  "version": "1.4.0",
-  "description": "Asistente inteligente de bricolaje con Gemini 3.5 Flash",
+  "version": "1.4.1",
+  "description": "Asistente inteligente con respaldo Lite",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
