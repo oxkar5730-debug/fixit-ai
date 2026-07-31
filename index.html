@@ -3,339 +3,214 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixia</title>
+    <title>Fixia - Asistente de Bricolaje</title>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background-color: #1a1a1a;
-            color: #ffffff;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden;
-        }
-        header {
-            padding: 15px 20px;
-            font-size: 20px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #1a1a1a;
-            border-bottom: 1px solid #333;
-        }
-        header span.version {
-            font-size: 12px;
-            background-color: #f4a261;
-            color: #1a1a1a;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-weight: bold;
-        }
-        .view-container {
-            flex: 1;
-            display: none;
-            flex-direction: column;
-            padding: 20px;
-            overflow-y: auto;
-            box-sizing: border-box;
-        }
-        .view-container.active {
-            display: flex;
-        }
-        /* Vista Cámara / Inicio (Centro) */
-        .camera-view {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            text-align: center;
-            flex: 1;
-        }
-        .camera-btn {
-            background-color: #f4a261;
-            color: #1a1a1a;
-            border: none;
-            border-radius: 12px;
-            padding: 15px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        #preview-img {
-            max-width: 100%;
-            max-height: 250px;
-            border-radius: 8px;
-            display: none;
-        }
-        /* Vista Chat (Izquierda) */
-        .chat-box {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            overflow-y: auto;
-            padding-bottom: 20px;
-        }
-        .message {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 12px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        .message.incoming {
-            background-color: #2a2a2a;
-            align-self: flex-start;
-            border: 1px solid #333;
-        }
-        .message.outgoing {
-            background-color: #f4a261;
-            color: #1a1a1a;
-            align-self: flex-end;
-            font-weight: 500;
-        }
-        .message.error {
-            background-color: #5c2c2c;
-            color: #ffcccc;
-            align-self: stretch;
-            border: 1px solid #8b0000;
-        }
-        .chat-input-area {
-            display: flex;
-            gap: 10px;
-            padding-top: 10px;
-            background-color: #1a1a1a;
-        }
-        .chat-input-area input {
-            flex: 1;
-            background-color: #2a2a2a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 12px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-        }
-        .chat-input-area button {
-            background-color: #f4a261;
-            color: #1a1a1a;
-            border: none;
-            border-radius: 8px;
-            padding: 0 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        /* Vista Amazon (Derecha) */
-        .amazon-view {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        .amazon-search-box {
-            display: flex;
-            gap: 10px;
-        }
-        .amazon-search-box input {
-            flex: 1;
-            background-color: #2a2a2a;
-            border: 1px solid #333;
-            border-radius: 8px;
-            padding: 12px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-        }
-        .amazon-search-box button {
-            background-color: #ff9900;
-            color: #1a1a1a;
-            border: none;
-            border-radius: 8px;
-            padding: 0 20px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        /* Barra de Navegación Inferior */
-        nav.bottom-bar {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background-color: #1a1a1a;
-            border-top: 1px solid #333;
-            height: 60px;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-        .nav-btn {
-            background: none;
-            border: none;
-            color: #888;
-            font-size: 24px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            user-select: none;
-            -webkit-user-select: none;
-            outline: none;
-            padding: 10px;
-        }
-        .nav-btn.active {
-            color: #f4a261;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f4f6f8; color: #333; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* Cabecera superior */
+        header { background-color: #2c3e50; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        h1 { font-size: 1.2rem; font-weight: 600; }
+
+        /* Menú Lateral (Sidebar) */
+        .sidebar { height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; left: 0; background-color: #2c3e50; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 3px 0 10px rgba(0,0,0,0.3); }
+        .sidebar a { padding: 12px 24px; text-decoration: none; font-size: 1.1rem; color: #ecf0f1; display: block; transition: 0.2s; }
+        .sidebar a:hover { background-color: #34495e; color: #3498db; }
+        .sidebar .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; background: none; border: none; color: white; cursor: pointer; }
+        
+        /* Fondo oscuro al abrir el menú */
+        #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 999; }
+
+        /* Contenedor de Vistas */
+        .view-container { flex: 1; display: none; flex-direction: column; height: calc(100vh - 60px); overflow-y: auto; background: #fff; }
+        .view-container.active { display: flex; }
+
+        /* Vista Chat (Inicio) */
+        #chat-messages { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 0.95rem; }
+        .message.bot { background-color: #e9ecef; color: #212529; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .message.user { background-color: #3498db; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        
+        .chat-input-area { padding: 12px; background: #fff; border-top: 1px solid #ddd; display: flex; gap: 8px; align-items: center; }
+        .chat-input-area input { flex: 1; padding: 10px 14px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 0.95rem; }
+        .chat-input-area button { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        .chat-input-area button:hover { background: #2980b9; }
+
+        /* Vista Adjuntar Foto */
+        .photo-view { padding: 25px; text-align: center; justify-content: center; align-items: center; gap: 20px; }
+        .photo-view input[type="file"] { display: none; }
+        .custom-file-upload { border: 2px dashed #3498db; display: inline-block; padding: 20px 30px; cursor: pointer; border-radius: 12px; color: #3498db; font-weight: 600; background: #ecf0f1; }
+        #preview-img { max-width: 100%; max-height: 250px; border-radius: 8px; display: none; margin-top: 10px; }
+
+        /* Vista Amazon */
+        .amazon-view { padding: 25px; text-align: center; gap: 15px; }
+        .amazon-view input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; margin-bottom: 10px; }
+        .amazon-btn { background: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        .amazon-btn:hover { background: #d35400; }
     </style>
 </head>
 <body>
 
+    <!-- Menú Lateral -->
+    <div id="sidebar" class="sidebar">
+        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+        <a href="#" onclick="switchView('home')">🏠 Inicio (Chat)</a>
+        <a href="#" onclick="switchView('photo')">📷 Adjuntar Foto</a>
+        <a href="#" onclick="switchView('amazon')">🛒 Búsqueda en Amazon</a>
+    </div>
+    <div id="overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Cabecera -->
     <header>
-        Fixia
-        <span class="version">v1.4.1</span>
+        <div class="header-left">
+            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            <h1>Fixia 1.5</h1>
+        </div>
     </header>
 
-    <!-- Vista 1: Chat (Izquierda) -->
-    <div id="vista-chat" class="view-container active">
-        <div class="chat-box" id="chat-box">
-            <div class="message incoming">¡Hola! Pregúntame lo que necesites sobre reparaciones o bricolaje.</div>
+    <!-- 1. VISTA INICIO (CHAT) -->
+    <div id="view-home" class="view-container active">
+        <div id="chat-messages">
+            <div class="message bot">¡Hola! Soy **Fixia**, tu asistente de bricolaje. ¿En qué puedo ayudarte hoy? Recuerda que puedes **hacer una foto** de lo que necesites reparar o **buscar herramientas en Amazon** desde el menú lateral.</div>
         </div>
         <div class="chat-input-area">
-            <input type="text" id="user-input" placeholder="Escribe tu consulta...">
-            <button id="send-btn">Enviar</button>
+            <input type="text" id="user-input" placeholder="Escribe tu consulta..." onkeypress="handleKeyPress(event)">
+            <button onclick="sendMessage()">Enviar</button>
         </div>
     </div>
 
-    <!-- Vista 2: Cámara / Inicio (Centro) -->
-    <div id="vista-inicio" class="view-container">
-        <div class="camera-view">
-            <h2>Capturar Avería</h2>
-            <p>Haz una foto directamente con la cámara de tu móvil para analizarla.</p>
-            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
-            <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 Hacer Foto</button>
-            <img id="preview-img" alt="Vista previa">
-        </div>
+    <!-- 2. VISTA ADJUNTAR FOTO -->
+    <div id="view-photo" class="view-container photo-view">
+        <h2>Sube una foto para que Fixia la analice</h2>
+        <label class="custom-file-upload">
+            <input type="file" id="file-input" accept="image/*" onchange="previewImage(event)">
+            Seleccionar imagen de la avería
+        </label>
+        <img id="preview-img" alt="Vista previa">
+        <button id="send-photo-btn" class="amazon-btn" style="display:none;" onclick="sendPhotoToChat()">Analizar esta foto en el Chat</button>
     </div>
 
-    <!-- Vista 3: Amazon (Derecha) -->
-    <div id="vista-amazon" class="view-container">
-        <h2>Recomendaciones de Amazon</h2>
-        <p>Busca herramientas, recambios o materiales directamente en Amazon:</p>
-        <div class="amazon-search-box">
-            <input type="text" id="amazon-query" placeholder="Buscar herramienta o material...">
-            <button id="amazon-search-btn">Buscar</button>
-        </div>
+    <!-- 3. VISTA AMAZON -->
+    <div id="view-container amazon-view" class="view-container amazon-view" style="padding: 25px;">
+        <h2>Buscador de Afiliados Amazon</h2>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">Encuentra herramientas o materiales recomendados:</p>
+        <input type="text" id="amazon-query" placeholder="Ej: Taladro, llave inglesa, serrín...">
+        <button class="amazon-btn" onclick="searchAmazon()">Buscar en Amazon</button>
     </div>
-
-    <!-- Barra de Navegación: [Chat (Izq)] [Cámara/Inicio (Centro)] [Amazon (Der)] -->
-    <nav class="bottom-bar">
-        <button class="nav-btn active" id="btn-chat" data-target="vista-chat">💬</button>
-        <button class="nav-btn" id="btn-inicio" data-target="vista-inicio">📷</button>
-        <button class="nav-btn" id="btn-amazon" data-target="vista-amazon">🛒</button>
-    </nav>
 
     <script>
-        const navButtons = document.querySelectorAll('.nav-btn');
-        const views = document.querySelectorAll('.view-container');
-
-        navButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                navButtons.forEach(b => b.classList.remove('active'));
-                views.forEach(v => v.classList.remove('active'));
-
-                btn.classList.add('active');
-                const targetId = btn.getAttribute('data-target');
-                document.getElementById(targetId).classList.add('active');
-            });
-        });
-
         let base64Image = null;
-        const cameraInput = document.getElementById('camera-input');
-        const previewImg = document.getElementById('preview-img');
 
-        cameraInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
+        // Control del Menú Lateral
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('overlay');
+            if (sidebar.style.width === '250px') {
+                sidebar.style.width = '0';
+                overlay.style.display = 'none';
+            } else {
+                sidebar.style.width = '250px';
+                overlay.style.display = 'block';
+            }
+        }
+
+        // Cambio de Vistas
+        function switchView(viewName) {
+            document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
+            if (viewName === 'home') document.getElementById('view-home').classList.add('active');
+            if (viewName === 'photo') document.getElementById('view-photo').classList.add('active');
+            if (viewName === 'amazon') document.querySelector('.amazon-view').classList.add('active');
+            toggleSidebar();
+        }
+
+        // Vista Previa de Imagen
+        function previewImage(event) {
+            const file = event.target.files[0];
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (uploadEvent) => {
-                    previewImg.src = uploadEvent.target.result;
-                    previewImg.style.display = 'block';
-                    base64Image = uploadEvent.target.result.split(',')[1];
-                };
+                reader.onload = function(e) {
+                    base64Image = e.target.result.split(',')[1];
+                    const img = document.getElementById('preview-img');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    document.getElementById('send-photo-btn').style.display = 'block';
+                }
                 reader.readAsDataURL(file);
             }
-        });
+        }
 
-        const amazonBtn = document.getElementById('amazon-search-btn');
-        const amazonQuery = document.getElementById('amazon-query');
-
-        amazonBtn.addEventListener('click', () => {
-            const query = amazonQuery.value.trim();
-            if (query) {
-                const url = `https://www.amazon.es/s?k=${encodeURIComponent(query)}`;
-                window.open(url, '_blank');
-            }
-        });
-
-        amazonQuery.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                amazonBtn.click();
-            }
-        });
-
-        const sendBtn = document.getElementById('send-btn');
-        const userInput = document.getElementById('user-input');
-        const chatBox = document.getElementById('chat-box');
-
-        async function enviarMensaje() {
-            const texto = userInput.value.trim();
-            if (!texto && !base64Image) return;
-
-            const userMsg = document.createElement('div');
-            userMsg.className = 'message outgoing';
-            userMsg.textContent = texto || "[Imagen adjunta]";
-            chatBox.appendChild(userMsg);
-            
-            userInput.value = '';
-            chatBox.scrollTop = chatBox.scrollHeight;
-
-            const currentImage = base64Image;
+        // Enviar Foto al Chat automáticamente
+        function sendPhotoToChat() {
+            switchView('home');
+            appendMessage("He adjuntado una foto para que la analices.", 'user');
+            callBackend("Analiza esta imagen adjunta y dime qué solución ves.", base64Image);
             base64Image = null;
-            if (previewImg) previewImg.style.display = 'none';
+            document.getElementById('preview-img').style.display = 'none';
+            document.getElementById('send-photo-btn').style.display = 'none';
+        }
 
+        // Enviar Mensaje de Texto
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessage(text, 'user');
+            input.value = '';
+            callBackend(text, null);
+        }
+
+        function appendMessage(text, sender) {
+            const chatMessages = document.getElementById('chat-messages');
+            const div = document.createElement('div');
+            div.className = `message ${sender}`;
+            div.innerText = text;
+            chatMessages.appendChild(div);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Comunicación con el Backend
+        async function callBackend(mensaje, imagen) {
+            const loadingId = appendMessage("Fixia está pensando...", 'bot');
+            
             try {
                 const response = await fetch('/api/analizar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mensaje: texto || "Analiza esta imagen", imagen: currentImage })
+                    body: JSON.stringify({ mensaje, imagen })
                 });
-
                 const data = await response.json();
+                
+                // Eliminar mensaje de carga y mostrar respuesta real
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.lastChild.remove();
 
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'message incoming';
-                if (response.ok) {
-                    aiMsg.textContent = data.respuesta;
+                if (data.respuesta) {
+                    appendMessage(data.respuesta, 'bot');
                 } else {
-                    aiMsg.className = 'message error';
-                    aiMsg.textContent = "Error del servidor: " + (data.error || "Desconocido");
+                    appendMessage("Hubo un error al procesar la respuesta.", 'bot');
                 }
-                chatBox.appendChild(aiMsg);
-                chatBox.scrollTop = chatBox.scrollHeight;
-
             } catch (err) {
-                const errorMsg = document.createElement('div');
-                errorMsg.className = 'message error';
-                errorMsg.textContent = "Error de conexión con el servidor.";
-                chatBox.appendChild(errorMsg);
-                chatBox.scrollTop = chatBox.scrollHeight;
+                const chatMessages = document.getElementById('chat-messages');
+                chatMessages.lastChild.remove();
+                appendMessage("Error de conexión con el servidor.", 'bot');
             }
         }
 
-        sendBtn.addEventListener('click', enviarMensaje);
-        userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') enviarMensaje();
-        });
+        // Búsqueda de Amazon (con tu Tag de Afiliado cuando lo configures)
+        function searchAmazon() {
+            const query = document.getElementById('amazon-query').value.trim();
+            if (!query) return;
+            const trackingId = "tu-tag-afiliado-21"; // Reemplaza esto cuando tengas tu ID de Amazon Afiliados
+            const url = `https://www.amazon.es/s?k=${encodeURIComponent(query)}&tag=${trackingId}`;
+            window.open(url, '_blank');
+        }
     </script>
 </body>
 </html>
