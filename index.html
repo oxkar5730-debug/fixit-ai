@@ -45,7 +45,7 @@
         .view-container.active {
             display: flex;
         }
-        /* Vista Cámara / Inicio (Izquierda) */
+        /* Vista Cámara / Inicio (Centro) */
         .camera-view {
             display: flex;
             flex-direction: column;
@@ -71,7 +71,7 @@
             border-radius: 8px;
             display: none;
         }
-        /* Vista Chat (Centro) */
+        /* Vista Chat (Izquierda) */
         .chat-box {
             flex: 1;
             display: flex;
@@ -192,21 +192,10 @@
 
     <header>
         Fixia
-        <span class="version">v1.4.0</span>
+        <span class="version">v1.4.1</span>
     </header>
 
-    <!-- Vista 1: Cámara / Inicio (Izquierda) -->
-    <div id="vista-inicio" class="view-container">
-        <div class="camera-view">
-            <h2>Capturar Avería</h2>
-            <p>Haz una foto directamente con la cámara de tu móvil para analizarla en el chat.</p>
-            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
-            <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 Hacer Foto</button>
-            <img id="preview-img" alt="Vista previa">
-        </div>
-    </div>
-
-    <!-- Vista 2: Chat (Centro) -->
+    <!-- Vista 1: Chat (Izquierda) -->
     <div id="vista-chat" class="view-container active">
         <div class="chat-box" id="chat-box">
             <div class="message incoming">¡Hola! Pregúntame lo que necesites sobre reparaciones o bricolaje.</div>
@@ -214,6 +203,17 @@
         <div class="chat-input-area">
             <input type="text" id="user-input" placeholder="Escribe tu consulta...">
             <button id="send-btn">Enviar</button>
+        </div>
+    </div>
+
+    <!-- Vista 2: Cámara / Inicio (Centro) -->
+    <div id="vista-inicio" class="view-container">
+        <div class="camera-view">
+            <h2>Capturar Avería</h2>
+            <p>Haz una foto directamente con la cámara de tu móvil para analizarla.</p>
+            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+            <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 Hacer Foto</button>
+            <img id="preview-img" alt="Vista previa">
         </div>
     </div>
 
@@ -227,10 +227,10 @@
         </div>
     </div>
 
-    <!-- Barra de Navegación: [Cámara] [Chat] [Amazon] -->
+    <!-- Barra de Navegación: [Chat (Izq)] [Cámara/Inicio (Centro)] [Amazon (Der)] -->
     <nav class="bottom-bar">
-        <button class="nav-btn" id="btn-inicio" data-target="vista-inicio">📷</button>
         <button class="nav-btn active" id="btn-chat" data-target="vista-chat">💬</button>
+        <button class="nav-btn" id="btn-inicio" data-target="vista-inicio">📷</button>
         <button class="nav-btn" id="btn-amazon" data-target="vista-amazon">🛒</button>
     </nav>
 
