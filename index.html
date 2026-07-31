@@ -15,11 +15,17 @@
         h1 { font-size: 1.2rem; font-weight: 600; }
 
         /* Menú Lateral (Sidebar) */
-        .sidebar { height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; left: 0; background-color: #2c3e50; overflow-x: hidden; transition: 0.3s; padding-top: 60px; box-shadow: 3px 0 10px rgba(0,0,0,0.3); }
+        .sidebar { height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; left: 0; background-color: #2c3e50; overflow-x: hidden; transition: 0.3s; padding-top: 60px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 3px 0 10px rgba(0,0,0,0.3); }
+        .sidebar-content { flex: 1; overflow-y: auto; }
         .sidebar a { padding: 12px 24px; text-decoration: none; font-size: 1.1rem; color: #ecf0f1; display: block; transition: 0.2s; }
         .sidebar a:hover { background-color: #34495e; color: #3498db; }
         .sidebar .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; background: none; border: none; color: white; cursor: pointer; }
         
+        /* Contacto por correo y versión en el pie del menú lateral */
+        .sidebar-footer { padding: 20px 24px; border-top: 1px solid #34495e; font-size: 0.9rem; color: #bdc3c7; background: #243342; }
+        .sidebar-footer a { padding: 4px 0; color: #3498db; display: inline-block; word-break: break-all; }
+        .version-tag { font-size: 0.75rem; color: #7f8c8d; text-align: right; padding-top: 5px; }
+
         /* Fondo oscuro al abrir el menú */
         #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 999; }
 
@@ -33,6 +39,11 @@
         .message.bot { background-color: #e9ecef; color: #212529; align-self: flex-start; border-bottom-left-radius: 2px; }
         .message.user { background-color: #3498db; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         
+        /* Accesos rápidos / problemas frecuentes */
+        .quick-chips { padding: 10px 15px; display: flex; gap: 8px; overflow-x: auto; background: #fdfdfd; border-bottom: 1px solid #eee; }
+        .chip { background: #e2e8f0; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; color: #2c3e50; transition: 0.2s; }
+        .chip:hover { background: #cbd5e1; }
+
         .chat-input-area { padding: 12px; background: #fff; border-top: 1px solid #ddd; display: flex; gap: 8px; align-items: center; }
         .chat-input-area input { flex: 1; padding: 10px 14px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 0.95rem; }
         .chat-input-area button { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
@@ -49,6 +60,13 @@
         .amazon-view input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; margin-bottom: 10px; }
         .amazon-btn { background: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
         .amazon-btn:hover { background: #d35400; }
+
+        /* Otras vistas (Historial, Legal) */
+        .content-view { padding: 20px; line-height: 1.6; }
+        .content-view h2 { margin-bottom: 15px; color: #2c3e50; }
+        .history-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
+        .history-item:hover { background: #f1f5f9; }
+        .history-date { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
     </style>
 </head>
 <body>
@@ -56,9 +74,18 @@
     <!-- Menú Lateral -->
     <div id="sidebar" class="sidebar">
         <button class="close-btn" onclick="toggleSidebar()">&times;</button>
-        <a href="#" onclick="switchView('home')">🏠 Inicio (Chat)</a>
-        <a href="#" onclick="switchView('photo')">📷 Adjuntar Foto</a>
-        <a href="#" onclick="switchView('amazon')">🛒 Búsqueda en Amazon</a>
+        <div class="sidebar-content">
+            <a href="#" onclick="switchView('home')">🏠 Inicio (Chat)</a>
+            <a href="#" onclick="switchView('photo')">📷 Adjuntar Foto</a>
+            <a href="#" onclick="switchView('amazon')">🛒 Búsqueda en Amazon</a>
+            <a href="#" onclick="switchView('history')">📋 Mis Reparaciones</a>
+            <a href="#" onclick="switchView('legal')">⚖️ Aviso Legal y Afiliados</a>
+        </div>
+        <div class="sidebar-footer">
+            <p style="font-weight: 600; margin-bottom: 3px;">✉️ Contáctanos</p>
+            <a href="mailto:fixiayuda@gmail.com">fixiayuda@gmail.com</a>
+            <div class="version-tag">Fixia v1.6.0</div>
+        </div>
     </div>
     <div id="overlay" onclick="toggleSidebar()"></div>
 
@@ -66,12 +93,19 @@
     <header>
         <div class="header-left">
             <button class="menu-btn" onclick="toggleSidebar()">☰</button>
-            <h1>Fixia 1.5</h1>
+            <h1>Fixia</h1>
         </div>
     </header>
 
     <!-- 1. VISTA INICIO (CHAT) -->
     <div id="view-home" class="view-container active">
+        <!-- Accesos rápidos / problemas frecuentes -->
+        <div class="quick-chips">
+            <button class="chip" onclick="sendQuick('¿Cómo colgar un cuadro?')">🖼️ Colgar cuadro</button>
+            <button class="chip" onclick="sendQuick('Grifo goteando, ¿qué hago?')">🚰 Grifo goteando</button>
+            <button class="chip" onclick="sendQuick('Cambiar una bombilla')">💡 Cambiar bombilla</button>
+            <button class="chip" onclick="sendQuick('Purgar un radiador')">🔥 Purgar radiador</button>
+        </div>
         <div id="chat-messages">
             <div class="message bot">¡Hola! Soy **Fixia**, tu asistente de bricolaje. ¿En qué puedo ayudarte hoy? Recuerda que puedes **hacer una foto** de lo que necesites reparar o **buscar herramientas en Amazon** desde el menú lateral.</div>
         </div>
@@ -93,15 +127,37 @@
     </div>
 
     <!-- 3. VISTA AMAZON -->
-    <div id="view-container amazon-view" class="view-container amazon-view" style="padding: 25px;">
+    <div id="view-amazon" class="view-container amazon-view" style="padding: 25px;">
         <h2>Buscador de Afiliados Amazon</h2>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">Encuentra herramientas o materiales recomendados:</p>
         <input type="text" id="amazon-query" placeholder="Ej: Taladro, llave inglesa, serrín...">
         <button class="amazon-btn" onclick="searchAmazon()">Buscar en Amazon</button>
     </div>
 
+    <!-- 4. VISTA MIS REPARACIONES (HISTORIAL) -->
+    <div id="view-history" class="view-container content-view">
+        <h2>Mis Reparaciones (Historial)</h2>
+        <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">Aquí puedes ver tus consultas recientes guardadas en este dispositivo:</p>
+        <div id="history-list">
+            <p style="color: #888; font-style: italic;">No hay reparaciones guardadas todavía.</p>
+        </div>
+        <button class="amazon-btn" style="background: #e74c3c; margin-top: 20px;" onclick="clearHistory()">Borrar Historial</button>
+    </div>
+
+    <!-- 5. VISTA AVISO LEGAL Y AFILIADOS -->
+    <div id="view-legal" class="view-container content-view">
+        <h2>Aviso Legal y Afiliados</h2>
+        <p style="margin-bottom: 12px;"><strong>Información general:</strong> Fixia es una aplicación informativa de asistencia técnica para bricolaje y reparaciones caseras impulsada por inteligencia artificial.</p>
+        <p style="margin-bottom: 12px;"><strong>Programa de Afiliados de Amazon:</strong> En calidad de Afiliado de Amazon, esta aplicación obtiene ingresos por las compras adscritas que cumplen los requisitos aplicables. Cuando utilizas los enlaces de recomendación de herramientas, podemos recibir una pequeña comisión sin ningún coste adicional para ti.</p>
+        <p style="margin-bottom: 12px;"><strong>Privacidad:</strong> Las consultas e imágenes enviadas se procesan de forma segura para darte una solución rápida, almacenándose únicamente de manera local en tu dispositivo para tu historial.</p>
+    </div>
+
     <script>
         let base64Image = null;
+
+        window.onload = function() {
+            loadHistory();
+        };
 
         // Control del Menú Lateral
         function toggleSidebar() {
@@ -121,7 +177,12 @@
             document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
             if (viewName === 'home') document.getElementById('view-home').classList.add('active');
             if (viewName === 'photo') document.getElementById('view-photo').classList.add('active');
-            if (viewName === 'amazon') document.querySelector('.amazon-view').classList.add('active');
+            if (viewName === 'amazon') document.getElementById('view-amazon').classList.add('active');
+            if (viewName === 'history') {
+                document.getElementById('view-history').classList.add('active');
+                loadHistory();
+            }
+            if (viewName === 'legal') document.getElementById('view-legal').classList.add('active');
             toggleSidebar();
         }
 
@@ -151,6 +212,12 @@
             document.getElementById('send-photo-btn').style.display = 'none';
         }
 
+        // Enviar desde Accesos Rápidos
+        function sendQuick(text) {
+            appendMessage(text, 'user');
+            callBackend(text, null);
+        }
+
         // Enviar Mensaje de Texto
         function handleKeyPress(e) {
             if (e.key === 'Enter') sendMessage();
@@ -175,9 +242,9 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Comunicación con el Backend
+        // Comunicación con el Backend y Guardado en Historial Local
         async function callBackend(mensaje, imagen) {
-            const loadingId = appendMessage("Fixia está pensando...", 'bot');
+            appendMessage("Fixia está pensando...", 'bot');
             
             try {
                 const response = await fetch('/api/analizar', {
@@ -187,12 +254,12 @@
                 });
                 const data = await response.json();
                 
-                // Eliminar mensaje de carga y mostrar respuesta real
                 const chatMessages = document.getElementById('chat-messages');
                 chatMessages.lastChild.remove();
 
                 if (data.respuesta) {
                     appendMessage(data.respuesta, 'bot');
+                    saveToHistory(mensaje, data.respuesta);
                 } else {
                     appendMessage("Hubo un error al procesar la respuesta.", 'bot');
                 }
@@ -203,11 +270,51 @@
             }
         }
 
-        // Búsqueda de Amazon (con tu Tag de Afiliado cuando lo configures)
+        // Funciones de Historial Local
+        function saveToHistory(query, answer) {
+            let history = JSON.parse(localStorage.getItem('fixia_history') || '[]');
+            history.unshift({
+                query: query,
+                answer: answer,
+                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
+            if (history.length > 20) history.pop();
+            localStorage.setItem('fixia_history', JSON.stringify(history));
+        }
+
+        function loadHistory() {
+            const historyList = document.getElementById('history-list');
+            let history = JSON.parse(localStorage.getItem('fixia_history') || '[]');
+            
+            if (history.length === 0) {
+                historyList.innerHTML = '<p style="color: #888; font-style: italic;">No hay reparaciones guardadas todavía.</p>';
+                return;
+            }
+
+            historyList.innerHTML = '';
+            history.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = 'history-item';
+                div.innerHTML = `<strong>Consulta:</strong> ${item.query}<div class="history-date">${item.date}</div>`;
+                div.onclick = function() {
+                    switchView('home');
+                    appendMessage(item.query, 'user');
+                    appendMessage(item.answer, 'bot');
+                };
+                historyList.appendChild(div);
+            });
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('fixia_history');
+            loadHistory();
+        }
+
+        // Búsqueda de Amazon
         function searchAmazon() {
             const query = document.getElementById('amazon-query').value.trim();
             if (!query) return;
-            const trackingId = "tu-tag-afiliado-21"; // Reemplaza esto cuando tengas tu ID de Amazon Afiliados
+            const trackingId = "tu-tag-afiliado-21"; 
             const url = `https://www.amazon.es/s?k=${encodeURIComponent(query)}&tag=${trackingId}`;
             window.open(url, '_blank');
         }
