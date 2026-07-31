@@ -38,13 +38,40 @@
             flex: 1;
             display: none;
             flex-direction: column;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
             box-sizing: border-box;
         }
         .view-container.active {
             display: flex;
         }
+        /* Vista Cámara / Inicio (Izquierda) */
+        .camera-view {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            text-align: center;
+            flex: 1;
+        }
+        .camera-btn {
+            background-color: #f4a261;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #preview-img {
+            max-width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+            display: none;
+        }
+        /* Vista Chat (Centro) */
         .chat-box {
             flex: 1;
             display: flex;
@@ -102,6 +129,36 @@
             font-weight: bold;
             cursor: pointer;
         }
+        /* Vista Amazon (Derecha) */
+        .amazon-view {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .amazon-search-box {
+            display: flex;
+            gap: 10px;
+        }
+        .amazon-search-box input {
+            flex: 1;
+            background-color: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            color: white;
+            font-size: 14px;
+            outline: none;
+        }
+        .amazon-search-box button {
+            background-color: #ff9900;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        /* Barra de Navegación Inferior */
         nav.bottom-bar {
             display: flex;
             justify-content: space-around;
@@ -138,14 +195,18 @@
         <span class="version">v1.4.0</span>
     </header>
 
-    <!-- Vista 1: Inicio -->
+    <!-- Vista 1: Cámara / Inicio (Izquierda) -->
     <div id="vista-inicio" class="view-container">
-        <h2>Inicio / Cámara</h2>
-        <p>Sube o adjunta una foto de tu avería para analizarla.</p>
-        <input type="file" id="imagen-input" accept="image/*" style="margin-top: 20px; color: white;">
+        <div class="camera-view">
+            <h2>Capturar Avería</h2>
+            <p>Haz una foto directamente con la cámara de tu móvil para analizarla en el chat.</p>
+            <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
+            <button class="camera-btn" onclick="document.getElementById('camera-input').click()">📷 Hacer Foto</button>
+            <img id="preview-img" alt="Vista previa">
+        </div>
     </div>
 
-    <!-- Vista 2: Chat -->
+    <!-- Vista 2: Chat (Centro) -->
     <div id="vista-chat" class="view-container active">
         <div class="chat-box" id="chat-box">
             <div class="message incoming">¡Hola! Pregúntame lo que necesites sobre reparaciones o bricolaje.</div>
@@ -156,15 +217,19 @@
         </div>
     </div>
 
-    <!-- Vista 3: Amazon / Tienda -->
+    <!-- Vista 3: Amazon (Derecha) -->
     <div id="vista-amazon" class="view-container">
-        <h2>Recomendaciones</h2>
-        <p>Herramientas y materiales recomendados.</p>
+        <h2>Recomendaciones de Amazon</h2>
+        <p>Busca herramientas, recambios o materiales directamente en Amazon:</p>
+        <div class="amazon-search-box">
+            <input type="text" id="amazon-query" placeholder="Buscar herramienta o material...">
+            <button id="amazon-search-btn">Buscar</button>
+        </div>
     </div>
 
-    <!-- Barra de Navegación Inferior -->
+    <!-- Barra de Navegación: [Cámara] [Chat] [Amazon] -->
     <nav class="bottom-bar">
-        <button class="nav-btn" id="btn-inicio" data-target="vista-inicio">🏠</button>
+        <button class="nav-btn" id="btn-inicio" data-target="vista-inicio">📷</button>
         <button class="nav-btn active" id="btn-chat" data-target="vista-chat">💬</button>
         <button class="nav-btn" id="btn-amazon" data-target="vista-amazon">🛒</button>
     </nav>
@@ -184,33 +249,65 @@
             });
         });
 
+        let base64Image = null;
+        const cameraInput = document.getElementById('camera-input');
+        const previewImg = document.getElementById('preview-img');
+
+        cameraInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (uploadEvent) => {
+                    previewImg.src = uploadEvent.target.result;
+                    previewImg.style.display = 'block';
+                    base64Image = uploadEvent.target.result.split(',')[1];
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        const amazonBtn = document.getElementById('amazon-search-btn');
+        const amazonQuery = document.getElementById('amazon-query');
+
+        amazonBtn.addEventListener('click', () => {
+            const query = amazonQuery.value.trim();
+            if (query) {
+                const url = `https://www.amazon.es/s?k=${encodeURIComponent(query)}`;
+                window.open(url, '_blank');
+            }
+        });
+
+        amazonQuery.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                amazonBtn.click();
+            }
+        });
+
         const sendBtn = document.getElementById('send-btn');
         const userInput = document.getElementById('user-input');
         const chatBox = document.getElementById('chat-box');
-        const imagenInput = document.getElementById('imagen-input');
 
         async function enviarMensaje() {
             const texto = userInput.value.trim();
-            if (!texto) return;
+            if (!texto && !base64Image) return;
 
             const userMsg = document.createElement('div');
             userMsg.className = 'message outgoing';
-            userMsg.textContent = texto;
+            userMsg.textContent = texto || "[Imagen adjunta]";
             chatBox.appendChild(userMsg);
+            
             userInput.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
-            let base64Image = null;
-            if (imagenInput && imagenInput.files && imagenInput.files[0]) {
-                const file = imagenInput.files[0];
-                base64Image = await toBase64(file);
-            }
+            const currentImage = base64Image;
+            base64Image = null;
+            if (previewImg) previewImg.style.display = 'none';
 
             try {
                 const response = await fetch('/api/analizar', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ mensaje: texto, imagen: base64Image })
+                    body: JSON.stringify({ mensaje: texto || "Analiza esta imagen", imagen: currentImage })
                 });
 
                 const data = await response.json();
@@ -233,15 +330,6 @@
                 chatBox.appendChild(errorMsg);
                 chatBox.scrollTop = chatBox.scrollHeight;
             }
-        }
-
-        function toBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(file);
-                reader.onload = () => resolve(reader.result.split(',')[1]);
-                reader.onerror = error => reject(error);
-            });
         }
 
         sendBtn.addEventListener('click', enviarMensaje);
