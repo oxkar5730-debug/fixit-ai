@@ -39,12 +39,13 @@
         .message.bot { background-color: #e9ecef; color: #212529; align-self: flex-start; border-bottom-left-radius: 2px; }
         .message.user { background-color: #3498db; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         
-        /* Accesos rápidos / problemas frecuentes */
+        /* Accesos rápidos / problemas frecuentes dinámicos */
         .quick-chips { padding: 10px 15px; display: flex; gap: 8px; overflow-x: auto; background: #fdfdfd; border-bottom: 1px solid #eee; }
         .chip { background: #e2e8f0; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; color: #2c3e50; transition: 0.2s; }
         .chip:hover { background: #cbd5e1; }
 
-        .chat-input-area { padding: 12px; background: #fff; border-top: 1px solid #ddd; display: flex; gap: 8px; align-items: center; }
+        /* Zona de escritura elevada para evitar solapamiento con los botones del móvil */
+        .chat-input-area { padding: 12px 12px 20px 12px; background: #fff; border-top: 1px solid #ddd; display: flex; gap: 8px; align-items: center; }
         .chat-input-area input { flex: 1; padding: 10px 14px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 0.95rem; }
         .chat-input-area button { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
         .chat-input-area button:hover { background: #2980b9; }
@@ -84,7 +85,7 @@
         <div class="sidebar-footer">
             <p style="font-weight: 600; margin-bottom: 3px;">✉️ Contáctanos</p>
             <a href="mailto:fixiayuda@gmail.com">fixiayuda@gmail.com</a>
-            <div class="version-tag">Fixia v1.6.0</div>
+            <div class="version-tag">Fixia v1.6.1</div>
         </div>
     </div>
     <div id="overlay" onclick="toggleSidebar()"></div>
@@ -99,15 +100,12 @@
 
     <!-- 1. VISTA INICIO (CHAT) -->
     <div id="view-home" class="view-container active">
-        <!-- Accesos rápidos / problemas frecuentes -->
-        <div class="quick-chips">
-            <button class="chip" onclick="sendQuick('¿Cómo colgar un cuadro?')">🖼️ Colgar cuadro</button>
-            <button class="chip" onclick="sendQuick('Grifo goteando, ¿qué hago?')">🚰 Grifo goteando</button>
-            <button class="chip" onclick="sendQuick('Cambiar una bombilla')">💡 Cambiar bombilla</button>
-            <button class="chip" onclick="sendQuick('Purgar un radiador')">🔥 Purgar radiador</button>
+        <!-- Accesos rápidos rotativos / frecuentes -->
+        <div id="quick-chips" class="quick-chips">
+            <!-- Se cargan dinámicamente mediante JavaScript -->
         </div>
         <div id="chat-messages">
-            <div class="message bot">¡Hola! Soy **Fixia**, tu asistente de bricolaje. ¿En qué puedo ayudarte hoy? Recuerda que puedes **hacer una foto** de lo que necesites reparar o **buscar herramientas en Amazon** desde el menú lateral.</div>
+            <div class="message bot">¡Hola! Soy Fixia, tu asistente de bricolaje. ¿En qué puedo ayudarte hoy? Recuerda que puedes hacer una foto de lo que necesites reparar o buscar herramientas en Amazon desde el menú lateral.</div>
         </div>
         <div class="chat-input-area">
             <input type="text" id="user-input" placeholder="Escribe tu consulta..." onkeypress="handleKeyPress(event)">
@@ -157,7 +155,39 @@
 
         window.onload = function() {
             loadHistory();
+            loadRandomChips();
         };
+
+        // Lista ampliada de sugerencias para que vayan rotando
+        const allChips = [
+            { text: "🖼️ Colgar cuadro", query: "¿Cómo colgar un cuadro?" },
+            { text: "🚰 Grifo goteando", query: "Grifo goteando, ¿qué hago?" },
+            { text: "💡 Cambiar bombilla", query: "Cambiar una bombilla" },
+            { text: "🔥 Purgar radiador", query: "Purgar un radiador" },
+            { text: "🚪 Bisagra floja", query: "Cómo arreglar una bisagra de puerta floja" },
+            { text: "🕳️ Tapar agujero pared", query: "¿Cómo tapar un agujero en la pared con masilla?" },
+            { text: "🧱 Quitar gotelé", query: "¿Cómo puedo disimular o quitar el gotelé?" },
+            { text: "🚽 Inodoro desaguando lento", query: "El inodoro traga lento, ¿cómo lo desatasco?" }
+        ];
+
+        // Función para seleccionar 4 sugerencias aleatorias distintas cada vez
+        function loadRandomChips() {
+            const container = document.getElementById('quick-chips');
+            container.innerHTML = '';
+            
+            // Mezclar array aleatoriamente
+            let shuffled = [...allChips].sort(() => 0.5 - Math.random());
+            // Coger 4
+            let selected = shuffled.slice(0, 4);
+
+            selected.forEach(item => {
+                const btn = document.createElement('button');
+                btn.className = 'chip';
+                btn.innerText = item.text;
+                btn.onclick = () => sendQuick(item.query);
+                container.appendChild(btn);
+            });
+        }
 
         // Control del Menú Lateral
         function toggleSidebar() {
@@ -175,7 +205,10 @@
         // Cambio de Vistas
         function switchView(viewName) {
             document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-            if (viewName === 'home') document.getElementById('view-home').classList.add('active');
+            if (viewName === 'home') {
+                document.getElementById('view-home').classList.add('active');
+                loadRandomChips(); // Rota sugerencias cada vez que vuelves al inicio
+            }
             if (viewName === 'photo') document.getElementById('view-photo').classList.add('active');
             if (viewName === 'amazon') document.getElementById('view-amazon').classList.add('active');
             if (viewName === 'history') {
