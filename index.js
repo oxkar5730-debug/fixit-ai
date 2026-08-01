@@ -54,7 +54,12 @@ async function generarConRespaldoLite(contenido) {
 app.post('/api/analizar', async (req, res) => {
     try {
         const { mensaje, imagen } = req.body;
-        let contenido = [mensaje || "Analiza esta consulta de bricolaje"];
+        
+        // Directiva para que la IA devuelva siempre el tiempo, coste y materiales necesarios
+        const instruccionFixia = "Eres Fixia, un asistente experto en bricolaje y reparaciones del hogar. Analiza la consulta y proporciona obligatoriamente la respuesta estructurada con los siguientes apartados: 1. Pasos o solución detallada, 2. Tiempo estimado de reparación, 3. Coste aproximado estimado (en euros), y 4. Lista de materiales y herramientas necesarias.\n\nConsulta del usuario: ";
+        
+        let textoConsulta = mensaje || "Analiza esta consulta de bricolaje";
+        let contenido = [instruccionFixia + textoConsulta];
 
         if (imagen) {
             contenido.push({
