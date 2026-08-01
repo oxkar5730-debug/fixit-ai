@@ -11,6 +11,15 @@ app.use(express.static(__dirname));
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
+// ID oficial de Amazon Afiliados
+const AMAZON_TAG = "fixia01-21";
+
+// Función para generar los enlaces de afiliado de Amazon
+function generarEnlaceAmazon(material) {
+    const query = encodeURIComponent(material);
+    return `https://www.amazon.es/s?k=${query}&tag=${AMAZON_TAG}`;
+}
+
 // Modelos ordenados dando prioridad a la variante lite y alternativas modernas
 const modelosRespaldo = [
     "gemini-3.5-flash-lite",
