@@ -1,0 +1,16 @@
+{
+  "name": "Fixia",
+  "short_name": "Fixia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b1329",
+  "theme_color": "#0b1329",
+  "description": "Tu asistente de reparaciones y bricolaje",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
