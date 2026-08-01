@@ -9,6 +9,11 @@
   "icons": [
     {
       "src": "/1785624030305~2.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/1785624030305~2.jpg",
       "sizes": "512x512",
       "type": "image/jpeg"
     }
