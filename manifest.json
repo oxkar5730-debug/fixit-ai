@@ -8,14 +8,14 @@
   "description": "Tu asistente de reparaciones y bricolaje",
   "icons": [
     {
-      "src": "/1785624030305~2.jpg",
+      "src": "/1000039852 (1).png",
       "sizes": "192x192",
-      "type": "image/jpeg"
+      "type": "image/png"
     },
     {
-      "src": "/1785624030305~2.jpg",
+      "src": "/1000039852 (1).png",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/png"
     }
   ]
 }
