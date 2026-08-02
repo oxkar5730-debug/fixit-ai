@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.onrender.fixit_ai_ekey.twa",
+        "sha256_cert_fingerprints": ["04:B7:14:37:40:6C:96:BE:26:59:5D:8A:C0:43:23:C7:FD:03:44:6D:46:F6:0D:D5:B8:DB:01:40:1B:90:26:A7"]
+      }
+    }]
