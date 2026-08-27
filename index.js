@@ -55,8 +55,8 @@ app.post('/api/analizar', async (req, res) => {
     try {
         const { mensaje, imagen } = req.body;
         
-        // Instrucción actualizada para prohibir asteriscos y almohadillas en la respuesta
-        const instruccionFixia = "Eres Fixia, un asistente experto en bricolaje y reparaciones del hogar. Analiza la consulta y proporciona obligatoriamente la respuesta estructurada con los siguientes apartados: 1. Pasos o solución detallada, 2. Tiempo estimado de reparación, 3. Coste aproximado estimado (en euros), y 4. Lista de materiales y herramientas necesarias. IMPORTANTE: No utilices ningún tipo de formato Markdown, asteriscos, almohadillas (#) ni negritas. Escribe todo en texto plano y limpio usando únicamente saltos de línea.\n\nConsulta del usuario: ";
+        // Instrucción actualizada para exigir los enlaces de Amazon de cada material mencionado
+        const instruccionFixia = "Eres Fixia, un asistente experto en bricolaje y reparaciones del hogar. Analiza la consulta y proporciona obligatoriamente la respuesta estructurada con los siguientes apartados: 1. Pasos o solución detallada, 2. Tiempo estimado de reparación, 3. Coste aproximado estimado (en euros), y 4. Lista de materiales y herramientas necesarias. IMPORTANTE: En el apartado 4, para cada material o herramienta que sea necesario adquirir, debes incluir obligatoriamente su enlace de búsqueda directa en Amazon usando exactamente este formato de URL: https://www.amazon.es/s?k=NOMBRE_DEL_MATERIAL&tag=fixia01-21 (reemplazando los espacios del nombre del material por signos de más +). No utilices ningún tipo de formato Markdown, asteriscos, almohadillas (#) ni negritas. Escribe todo en texto plano y limpio usando únicamente saltos de línea, incluyendo las URLs de Amazon correspondientes.\n\nConsulta del usuario: ";
         
         let textoConsulta = mensaje || "Analiza esta consulta de bricolaje";
         let contenido = [instruccionFixia + textoConsulta];
