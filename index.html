@@ -36,7 +36,7 @@
 
         /* Vista Chat (Inicio) */
         #chat-messages { flex: 1; padding: 15px 15px 90px 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .message { max-width: 80%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 0.95rem; }
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 0.95rem; word-break: break-word; }
         .message.bot { background-color: #e9ecef; color: #212529; align-self: flex-start; border-bottom-left-radius: 2px; }
         .message.user { background-color: #3498db; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         
@@ -284,7 +284,20 @@
             const chatMessages = document.getElementById('chat-messages');
             const div = document.createElement('div');
             div.className = `message ${sender}`;
-            div.innerText = text;
+            
+            if (sender === 'bot') {
+                // Convierte automáticamente las URLs de Amazon devueltas por la IA en enlaces limpios y clicables
+                let formattedText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                const urlRegex = /(https?:\/\/[^\s]+)/g;
+                formattedText = formattedText.replace(urlRegex, function(url) {
+                    return `<br><a href="${url}" target="_blank" style="display: inline-block; margin-top: 4px; background: #f39c12; color: white; padding: 4px 10px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.85rem;">🛒 Ver en Amazon</a>`;
+                });
+                formattedText = formattedText.replace(/\n/g, '<br>');
+                div.innerHTML = formattedText;
+            } else {
+                div.innerText = text;
+            }
+
             chatMessages.appendChild(div);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -361,7 +374,7 @@
         function searchAmazon() {
             const query = document.getElementById('amazon-query').value.trim();
             if (!query) return;
-            const trackingId = "tu-tag-afiliado-21"; 
+            const trackingId = "fixia01-21"; 
             const url = `https://www.amazon.es/s?k=${encodeURIComponent(query)}&tag=${trackingId}`;
             window.open(url, '_blank');
         }
