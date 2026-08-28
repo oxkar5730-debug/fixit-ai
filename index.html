@@ -7,67 +7,75 @@
     <link rel="manifest" href="/manifest.json">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        body { background-color: #f4f6f8; color: #333; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        body { 
+            background-color: #f3b562; 
+            background-image: url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d97706' fill-opacity='0.15' fill-rule='evenodd'%3E%3Cpath d='M20 20h15v40H20zm50 20h30v10H70zm-30 50h40v10H40zm60-30h15v40H100zM10 110h30v10H10zm90 20h40v10H100z'/%3E%3C/g%3E%3C/svg%3E");
+            color: #333; display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+        }
         
         /* Cabecera superior */
-        header { background-color: #2c3e50; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.1); z-index: 10; }
+        header { background-color: #1b2a4a; color: white; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 5px rgba(0,0,0,0.2); z-index: 10; }
         .header-left { display: flex; align-items: center; gap: 15px; }
         .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
         h1 { font-size: 1.2rem; font-weight: 600; }
 
         /* Menú Lateral (Sidebar) */
-        .sidebar { height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; left: 0; background-color: #2c3e50; overflow-x: hidden; transition: 0.3s; padding-top: 60px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 3px 0 10px rgba(0,0,0,0.3); }
+        .sidebar { height: 100%; width: 0; position: fixed; z-index: 1000; top: 0; left: 0; background-color: #1b2a4a; overflow-x: hidden; transition: 0.3s; padding-top: 60px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 3px 0 10px rgba(0,0,0,0.3); }
         .sidebar-content { flex: 1; overflow-y: auto; }
         .sidebar a { padding: 12px 24px; text-decoration: none; font-size: 1.1rem; color: #ecf0f1; display: block; transition: 0.2s; }
-        .sidebar a:hover { background-color: #34495e; color: #3498db; }
+        .sidebar a:hover { background-color: #2c3e50; color: #4a90e2; }
         .sidebar .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; background: none; border: none; color: white; cursor: pointer; }
         
         /* Contacto por correo y versión en el pie del menú lateral */
-        .sidebar-footer { padding: 20px 24px; border-top: 1px solid #34495e; font-size: 0.9rem; color: #bdc3c7; background: #243342; }
-        .sidebar-footer a { padding: 4px 0; color: #3498db; display: inline-block; word-break: break-all; }
+        .sidebar-footer { padding: 20px 24px; border-top: 1px solid #2c3e50; font-size: 0.9rem; color: #bdc3c7; background: #142036; }
+        .sidebar-footer a { padding: 4px 0; color: #4a90e2; display: inline-block; word-break: break-all; }
         .version-tag { font-size: 0.75rem; color: #7f8c8d; text-align: right; padding-top: 5px; }
 
         /* Fondo oscuro al abrir el menú */
         #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 999; }
 
-        /* Contenedor de Vistas */
-        .view-container { flex: 1; display: none; flex-direction: column; height: calc(100vh - 60px); overflow-y: auto; background: #fff; }
+        /* Contenedor de Vistas transparentes para mostrar el fondo en toda la app */
+        .view-container { flex: 1; display: none; flex-direction: column; height: calc(100vh - 60px); overflow-y: auto; background: transparent; }
         .view-container.active { display: flex; }
 
         /* Vista Chat (Inicio) */
         #chat-messages { flex: 1; padding: 15px 15px 90px 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-        .message { max-width: 80%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 0.95rem; word-break: break-word; }
-        .message.bot { background-color: #e9ecef; color: #212529; align-self: flex-start; border-bottom-left-radius: 2px; }
-        .message.user { background-color: #3498db; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+        .message { max-width: 80%; padding: 12px 16px; border-radius: 12px; line-height: 1.4; font-size: 0.95rem; word-break: break-word; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .message.bot { background-color: #1b2d5c; color: #ffffff; align-self: flex-start; border-bottom-left-radius: 2px; }
+        .message.user { background-color: #4a90e2; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         
         /* Accesos rápidos / problemas frecuentes dinámicos */
-        .quick-chips { padding: 10px 15px; display: flex; gap: 8px; overflow-x: auto; background: #fdfdfd; border-bottom: 1px solid #eee; }
-        .chip { background: #e2e8f0; border: none; padding: 6px 12px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; color: #2c3e50; transition: 0.2s; }
-        .chip:hover { background: #cbd5e1; }
+        .quick-chips { padding: 10px 15px; display: flex; gap: 8px; overflow-x: auto; background: rgba(253, 253, 253, 0.85); border-bottom: 1px solid rgba(0,0,0,0.1); backdrop-filter: blur(4px); }
+        .chip { background: #1b2a4a; border: none; padding: 6px 14px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; color: #ffffff; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .chip:hover { background: #2c3e50; }
 
-        /* Zona de escritura elevada y fija para evitar solapamiento con los botones del móvil */
+        /* Zona de escritura elevada y fija */
         .chat-input-area { 
             position: fixed; 
             bottom: 0; 
             left: 0; 
             right: 0; 
-            background: #fff; 
+            background: rgba(255, 255, 255, 0.95); 
             border-top: 1px solid #ddd; 
             padding: 12px 12px calc(16px + env(safe-area-inset-bottom, 16px)) 12px; 
             display: flex; 
             gap: 8px; 
             align-items: center; 
             z-index: 999; 
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            backdrop-filter: blur(5px);
         }
-        .chat-input-area input { flex: 1; padding: 10px 14px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 0.95rem; }
-        .chat-input-area button { background: #3498db; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
-        .chat-input-area button:hover { background: #2980b9; }
+        .chat-input-area input { flex: 1; padding: 10px 14px; border: 1px solid #ccc; border-radius: 20px; outline: none; font-size: 0.95rem; background: #fff; }
+        .chat-input-area button { background: #4a90e2; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
+        .chat-input-area button:hover { background: #357abd; }
 
+        /* Vistas secundarias con fondo translúcido limpio */
+        .photo-view, .amazon-view, .content-view { background: rgba(255, 255, 255, 0.92); margin: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(5px); }
+        
         /* Vista Adjuntar Foto */
         .photo-view { padding: 25px; text-align: center; justify-content: center; align-items: center; gap: 20px; }
         .photo-view input[type="file"] { display: none; }
-        .custom-file-upload { border: 2px dashed #3498db; display: inline-block; padding: 20px 30px; cursor: pointer; border-radius: 12px; color: #3498db; font-weight: 600; background: #ecf0f1; }
+        .custom-file-upload { border: 2px dashed #4a90e2; display: inline-block; padding: 20px 30px; cursor: pointer; border-radius: 12px; color: #1b2a4a; font-weight: 600; background: #ecf0f1; }
         #preview-img { max-width: 100%; max-height: 250px; border-radius: 8px; display: none; margin-top: 10px; }
 
         /* Vista Amazon */
@@ -78,7 +86,7 @@
 
         /* Otras vistas (Historial, Legal) */
         .content-view { padding: 20px; line-height: 1.6; }
-        .content-view h2 { margin-bottom: 15px; color: #2c3e50; }
+        .content-view h2 { margin-bottom: 15px; color: #1b2a4a; }
         .history-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
         .history-item:hover { background: #f1f5f9; }
         .history-date { font-size: 0.8rem; color: #64748b; margin-top: 4px; }
@@ -139,7 +147,7 @@
     </div>
 
     <!-- 3. VISTA AMAZON -->
-    <div id="view-amazon" class="view-container amazon-view" style="padding: 25px;">
+    <div id="view-amazon" class="view-container amazon-view">
         <h2>Buscador de Afiliados Amazon</h2>
         <p style="color: #666; font-size: 0.9rem; margin-bottom: 15px;">Encuentra herramientas o materiales recomendados:</p>
         <input type="text" id="amazon-query" placeholder="Ej: Taladro, llave inglesa, serrín...">
@@ -359,25 +367,4 @@
                 div.onclick = function() {
                     switchView('home');
                     appendMessage(item.query, 'user');
-                    appendMessage(item.answer, 'bot');
-                };
-                historyList.appendChild(div);
-            });
-        }
-
-        function clearHistory() {
-            localStorage.removeItem('fixia_history');
-            loadHistory();
-        }
-
-        // Búsqueda de Amazon
-        function searchAmazon() {
-            const query = document.getElementById('amazon-query').value.trim();
-            if (!query) return;
-            const trackingId = "fixia01-21"; 
-            const url = `https://www.amazon.es/s?k=${encodeURIComponent(query)}&tag=${trackingId}`;
-            window.open(url, '_blank');
-        }
-    </script>
-</body>
-</html>
+          
