@@ -9,8 +9,11 @@
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body { 
             background-color: #f3b562; 
-            background-image: url("data:image/svg+xml,%3Csvg width='160' height='160' viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d97706' fill-opacity='0.15' fill-rule='evenodd'%3E%3Cpath d='M20 20h15v40H20zm50 20h30v10H70zm-30 50h40v10H40zm60-30h15v40H100zM10 110h30v10H10zm90 20h40v10H100z'/%3E%3C/g%3E%3C/svg%3E");
-            color: #333; display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+            color: #333; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            overflow: hidden; 
         }
         
         /* Cabecera superior */
@@ -26,7 +29,7 @@
         .sidebar a:hover { background-color: #2c3e50; color: #4a90e2; }
         .sidebar .close-btn { position: absolute; top: 15px; right: 20px; font-size: 30px; background: none; border: none; color: white; cursor: pointer; }
         
-        /* Contacto por correo y versión en el pie del menú lateral */
+        /* Pie del menú lateral */
         .sidebar-footer { padding: 20px 24px; border-top: 1px solid #2c3e50; font-size: 0.9rem; color: #bdc3c7; background: #142036; }
         .sidebar-footer a { padding: 4px 0; color: #4a90e2; display: inline-block; word-break: break-all; }
         .version-tag { font-size: 0.75rem; color: #7f8c8d; text-align: right; padding-top: 5px; }
@@ -34,7 +37,7 @@
         /* Fondo oscuro al abrir el menú */
         #overlay { display: none; position: fixed; width: 100%; height: 100%; top: 0; left: 0; background-color: rgba(0,0,0,0.5); z-index: 999; }
 
-        /* Contenedor de Vistas transparentes para mostrar el fondo en toda la app */
+        /* Contenedor de Vistas */
         .view-container { flex: 1; display: none; flex-direction: column; height: calc(100vh - 60px); overflow-y: auto; background: transparent; }
         .view-container.active { display: flex; }
 
@@ -44,12 +47,12 @@
         .message.bot { background-color: #1b2d5c; color: #ffffff; align-self: flex-start; border-bottom-left-radius: 2px; }
         .message.user { background-color: #4a90e2; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
         
-        /* Accesos rápidos / problemas frecuentes dinámicos */
+        /* Accesos rápidos / problemas frecuentes */
         .quick-chips { padding: 10px 15px; display: flex; gap: 8px; overflow-x: auto; background: rgba(253, 253, 253, 0.85); border-bottom: 1px solid rgba(0,0,0,0.1); backdrop-filter: blur(4px); }
         .chip { background: #1b2a4a; border: none; padding: 6px 14px; border-radius: 15px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; color: #ffffff; transition: 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .chip:hover { background: #2c3e50; }
 
-        /* Zona de escritura elevada y fija */
+        /* Zona de escritura */
         .chat-input-area { 
             position: fixed; 
             bottom: 0; 
@@ -69,22 +72,19 @@
         .chat-input-area button { background: #4a90e2; color: white; border: none; padding: 10px 18px; border-radius: 20px; cursor: pointer; font-weight: 600; }
         .chat-input-area button:hover { background: #357abd; }
 
-        /* Vistas secundarias con fondo translúcido limpio */
+        /* Vistas secundarias */
         .photo-view, .amazon-view, .content-view { background: rgba(255, 255, 255, 0.92); margin: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); backdrop-filter: blur(5px); }
         
-        /* Vista Adjuntar Foto */
         .photo-view { padding: 25px; text-align: center; justify-content: center; align-items: center; gap: 20px; }
         .photo-view input[type="file"] { display: none; }
         .custom-file-upload { border: 2px dashed #4a90e2; display: inline-block; padding: 20px 30px; cursor: pointer; border-radius: 12px; color: #1b2a4a; font-weight: 600; background: #ecf0f1; }
         #preview-img { max-width: 100%; max-height: 250px; border-radius: 8px; display: none; margin-top: 10px; }
 
-        /* Vista Amazon */
         .amazon-view { padding: 25px; text-align: center; gap: 15px; }
         .amazon-view input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; margin-bottom: 10px; }
         .amazon-btn { background: #f39c12; color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
         .amazon-btn:hover { background: #d35400; }
 
-        /* Otras vistas (Historial, Legal) */
         .content-view { padding: 20px; line-height: 1.6; }
         .content-view h2 { margin-bottom: 15px; color: #1b2a4a; }
         .history-item { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; }
@@ -122,10 +122,7 @@
 
     <!-- 1. VISTA INICIO (CHAT) -->
     <div id="view-home" class="view-container active">
-        <!-- Accesos rápidos rotativos / frecuentes -->
-        <div id="quick-chips" class="quick-chips">
-            <!-- Se cargan dinámicamente mediante JavaScript -->
-        </div>
+        <div id="quick-chips" class="quick-chips"></div>
         <div id="chat-messages">
             <div class="message bot">¡Hola! Soy Fixia, tu asistente de bricolaje. ¿En qué puedo ayudarte hoy? Recuerda que puedes hacer una foto de lo que necesites reparar o buscar herramientas en Amazon desde el menú lateral.</div>
         </div>
@@ -168,8 +165,8 @@
     <div id="view-legal" class="view-container content-view">
         <h2>Aviso Legal y Afiliados</h2>
         <p style="margin-bottom: 12px;"><strong>Información general:</strong> Fixia es una aplicación informativa de asistencia técnica para bricolaje y reparaciones caseras impulsada por inteligencia artificial.</p>
-        <p style="margin-bottom: 12px;"><strong>Programa de Afiliados de Amazon:</strong> En calidad de Afiliado de Amazon, esta aplicación obtiene ingresos por las compras adscritas que cumplen los requisitos aplicables. Cuando utilizas los enlaces de recomendación de herramientas, podemos recibir una pequeña comisión sin ningún coste adicional para ti.</p>
-        <p style="margin-bottom: 12px;"><strong>Privacidad:</strong> Las consultas e imágenes enviadas se procesan de forma segura para darte una solución rápida, almacenándose únicamente de manera local en tu dispositivo para tu historial.</p>
+        <p style="margin-bottom: 12px;"><strong>Programa de Afiliados de Amazon:</strong> En calidad de Afiliado de Amazon, esta aplicación obtiene ingresos por las compras adscritas que cumplen los requisitos aplicables.</p>
+        <p style="margin-bottom: 12px;"><strong>Privacidad:</strong> Las consultas e imágenes enviadas se procesan de forma segura para darte una solución rápida.</p>
     </div>
 
     <script>
@@ -180,7 +177,6 @@
             loadRandomChips();
         };
 
-        // Lista ampliada de sugerencias para que vayan rotando
         const allChips = [
             { text: "🖼️ Colgar cuadro", query: "¿Cómo colgar un cuadro?" },
             { text: "🚰 Grifo goteando", query: "Grifo goteando, ¿qué hago?" },
@@ -192,14 +188,11 @@
             { text: "🚽 Inodoro desaguando lento", query: "El inodoro traga lento, ¿cómo lo desatasco?" }
         ];
 
-        // Función para seleccionar 4 sugerencias aleatorias distintas cada vez
         function loadRandomChips() {
             const container = document.getElementById('quick-chips');
+            if (!container) return;
             container.innerHTML = '';
-            
-            // Mezclar array aleatoriamente
             let shuffled = [...allChips].sort(() => 0.5 - Math.random());
-            // Coger 4
             let selected = shuffled.slice(0, 4);
 
             selected.forEach(item => {
@@ -211,10 +204,10 @@
             });
         }
 
-        // Control del Menú Lateral
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const overlay = document.getElementById('overlay');
+            if (!sidebar || !overlay) return;
             if (sidebar.style.width === '250px') {
                 sidebar.style.width = '0';
                 overlay.style.display = 'none';
@@ -224,12 +217,11 @@
             }
         }
 
-        // Cambio de Vistas
         function switchView(viewName) {
             document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
             if (viewName === 'home') {
                 document.getElementById('view-home').classList.add('active');
-                loadRandomChips(); // Rota sugerencias cada vez que vuelves al inicio
+                loadRandomChips();
             }
             if (viewName === 'photo') document.getElementById('view-photo').classList.add('active');
             if (viewName === 'amazon') document.getElementById('view-amazon').classList.add('active');
@@ -241,7 +233,6 @@
             toggleSidebar();
         }
 
-        // Vista Previa de Imagen
         function previewImage(event) {
             const file = event.target.files[0];
             if (file) {
@@ -257,7 +248,6 @@
             }
         }
 
-        // Enviar Foto al Chat automáticamente
         function sendPhotoToChat() {
             switchView('home');
             appendMessage("He adjuntado una foto para que la analices.", 'user');
@@ -267,13 +257,11 @@
             document.getElementById('send-photo-btn').style.display = 'none';
         }
 
-        // Enviar desde Accesos Rápidos
         function sendQuick(text) {
             appendMessage(text, 'user');
             callBackend(text, null);
         }
 
-        // Enviar Mensaje de Texto
         function handleKeyPress(e) {
             if (e.key === 'Enter') sendMessage();
         }
@@ -294,7 +282,6 @@
             div.className = `message ${sender}`;
             
             if (sender === 'bot') {
-                // Convierte automáticamente las URLs de Amazon devueltas por la IA en enlaces limpios y clicables
                 let formattedText = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
                 const urlRegex = /(https?:\/\/[^\s]+)/g;
                 formattedText = formattedText.replace(urlRegex, function(url) {
@@ -310,10 +297,8 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // Comunicación con el Backend y Guardado en Historial Local
         async function callBackend(mensaje, imagen) {
             appendMessage("Fixia está pensando...", 'bot');
-            
             try {
                 const response = await fetch('/api/analizar', {
                     method: 'POST',
@@ -321,7 +306,6 @@
                     body: JSON.stringify({ mensaje, imagen })
                 });
                 const data = await response.json();
-                
                 const chatMessages = document.getElementById('chat-messages');
                 chatMessages.lastChild.remove();
 
@@ -338,21 +322,30 @@
             }
         }
 
-        // Funciones de Historial Local
         function saveToHistory(query, answer) {
-            let history = JSON.parse(localStorage.getItem('fixia_history') || '[]');
-            history.unshift({
-                query: query,
-                answer: answer,
-                date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            });
-            if (history.length > 20) history.pop();
-            localStorage.setItem('fixia_history', JSON.stringify(history));
+            try {
+                let history = JSON.parse(localStorage.getItem('fixia_history') || '[]');
+                history.unshift({
+                    query: query,
+                    answer: answer,
+                    date: new Date().toLocaleDateString() + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                if (history.length > 20) history.pop();
+                localStorage.setItem('fixia_history', JSON.stringify(history));
+            } catch (e) {
+                console.error("Error al guardar historial", e);
+            }
         }
 
         function loadHistory() {
             const historyList = document.getElementById('history-list');
-            let history = JSON.parse(localStorage.getItem('fixia_history') || '[]');
+            if (!historyList) return;
+            let history = [];
+            try {
+                history = JSON.parse(localStorage.getItem('fixia_history') || '[]');
+            } catch (e) {
+                history = [];
+            }
             
             if (history.length === 0) {
                 historyList.innerHTML = '<p style="color: #888; font-style: italic;">No hay reparaciones guardadas todavía.</p>';
@@ -367,4 +360,24 @@
                 div.onclick = function() {
                     switchView('home');
                     appendMessage(item.query, 'user');
-          
+                    appendMessage(item.answer, 'bot');
+                };
+                historyList.appendChild(div);
+            });
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('fixia_history');
+            loadHistory();
+        }
+
+        function searchAmazon() {
+            const query = document.getElementById('amazon-query').value.trim();
+            if (!query) return;
+            const trackingId = "fixia01-21"; 
+            const url = `https://www.amazon.es/s?k=${encodeURIComponent(query)}&tag=${trackingId}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
